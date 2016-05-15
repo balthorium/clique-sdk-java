@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.cache.CliqueCache;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -40,17 +39,17 @@ public class AuthBlockGrant {
     /**
      * Creates a new grant.
      *
-     * @param cc        The local clique cache (for retrieving keys and chains).
+     * @param ct        The local clique net (for retrieving keys and chains).
      * @param type      The type of grant being asserted.
      * @param privilege The privilege to which the grant applies.
      * @param grantee   The identity to which the grant is extended.
      * @throws Exception On failure.
      */
-    public AuthBlockGrant(CliqueCache cc, Type type, String privilege, URI grantee) throws Exception {
-        if (null == cc || null == type || null == privilege || null == grantee) {
+    public AuthBlockGrant(CliqueTransport ct, Type type, String privilege, URI grantee) throws Exception {
+        if (null == ct || null == type || null == privilege || null == grantee) {
             throw new IllegalArgumentException();
         }
-        IdChain granteeChain = (IdChain) cc.getChainCache().getChain(grantee);
+        IdChain granteeChain = (IdChain) ct.getChain(grantee);
         _type = type;
         _grantee = granteeChain.getSubject();
         _privilege = privilege;

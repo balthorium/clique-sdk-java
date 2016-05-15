@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.cache.CliqueCache;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -15,14 +14,14 @@ import java.util.*;
 public class AuthChain extends AbstractChain {
 
     private ArrayList<AuthBlock> _blocks;
-    private CliqueCache _cc;
+    private CliqueTransport _cc;
 
     /**
      * Creates a new AuthChain.
      *
-     * @param cc The local application's clique cache.
+     * @param cc The local application's clique net.
      */
-    public AuthChain(CliqueCache cc) {
+    public AuthChain(CliqueTransport cc) {
         _cc = cc;
         _blocks = new ArrayList<>();
     }
@@ -31,11 +30,11 @@ public class AuthChain extends AbstractChain {
      * Parses an existing authorization chain to an AuthChain object.  The existing chain is provided in it's
      * serialized form.  Note this operation will not automatically perform validation of the provided chain.
      *
-     * @param cc            The local application's clique cache.
+     * @param cc            The local application's clique net.
      * @param serialization A serialization of the existing full authorization chain.
      * @throws Exception On failure.
      */
-    public AuthChain(CliqueCache cc, String serialization) throws Exception {
+    public AuthChain(CliqueTransport cc, String serialization) throws Exception {
         if (null == cc || null == serialization) {
             throw new IllegalArgumentException();
         }
@@ -139,13 +138,13 @@ public class AuthChain extends AbstractChain {
      */
     class ChainValidationState {
 
-        CliqueCache _cc;
+        CliqueTransport _ct;
         AuthBlock _antecedentBlock;
         Map<URI, String> _recentPkts;
         Map<URI, Map<String, AuthBlockGrant>> _currentGrants;
 
-        ChainValidationState(CliqueCache cc) {
-            _cc = cc;
+        ChainValidationState(CliqueTransport ct) {
+            _ct = ct;
             _antecedentBlock = null;
             _recentPkts = new HashMap<>();
             _currentGrants = new HashMap<>();

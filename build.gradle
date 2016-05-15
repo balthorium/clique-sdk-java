@@ -1,7 +1,7 @@
 description = 'Clique Java SDK'
-
 group = 'com.cisco.clique.sdk'
 version = '0.1'
+
 apply plugin: 'java'
 apply plugin: 'maven'
 
@@ -26,9 +26,3 @@ compileJava {
 test {
     useTestNG()
 }
-
-task runSDK(type: JavaExec) {
-    classpath = sourceSets.main.runtimeClasspath
-    main = 'com.cisco.clique.example.DistributedApp'
-}
-

@@ -78,12 +78,12 @@ public class IdBlock extends AbstractBlock {
         ECKey key = null;
         String pkt = _jwt.getHeader().getKeyID();
         if ((null != cvs._antecedentBlock) && pkt.equals(cvs._antecedentBlock.getPkt())) {
-            key = cvs._cc.getPublicKeyCache().getKey(pkt);
+            key = cvs._ct.getKey(pkt);
         } else {
             // TODO: Handle self-signed chains by validating the genesis block against trust root hashes
-            IdChain issuerChain = (IdChain) cvs._cc.getChainCache().getChain(cvs._issuer);
+            IdChain issuerChain = (IdChain) cvs._ct.getChain(cvs._issuer);
             if (issuerChain.validate() && issuerChain.containsPkt(pkt)) {
-                key = cvs._cc.getPublicKeyCache().getKey(pkt);
+                key = cvs._ct.getKey(pkt);
             }
         }
         return (null != key) && _jwt.verify(new ECDSAVerifier(key.toECPublicKey()));

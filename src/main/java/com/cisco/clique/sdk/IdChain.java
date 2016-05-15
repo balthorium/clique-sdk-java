@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.cache.CliqueCache;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -19,18 +18,18 @@ public class IdChain extends AbstractChain {
 
     ArrayList<IdBlock> _blocks;
     Map<String, Integer> _pktOrder;
-    CliqueCache _cc;
+    CliqueTransport _ct;
 
     /**
      * Creates a new AuthChain.
      *
-     * @param cc The local application's clique cache.
+     * @param ct The local application's clique net.
      */
-    public IdChain(CliqueCache cc) {
-        if (null == cc) {
+    public IdChain(CliqueTransport ct) {
+        if (null == ct) {
             throw new IllegalArgumentException();
         }
-        _cc = cc;
+        _ct = ct;
         _blocks = new ArrayList<>();
         _pktOrder = new HashMap<>();
     }
@@ -39,15 +38,15 @@ public class IdChain extends AbstractChain {
      * Parses an existing identity chain to an IdChain object.  The existing chain is provided in it's
      * serialized form.  Note this operation will not automatically perform validation of the provided chain.
      *
-     * @param cc            The local application's clique cache.
+     * @param ct            The local application's clique net.
      * @param serialization A serialization of the existing full identity chain.
      * @throws Exception On failure.
      */
-    public IdChain(CliqueCache cc, String serialization) throws Exception {
-        if (null == cc || null == serialization) {
+    public IdChain(CliqueTransport ct, String serialization) throws Exception {
+        if (null == ct || null == serialization) {
             throw new IllegalArgumentException();
         }
-        _cc = cc;
+        _ct = ct;
         _blocks = new ArrayList<>();
         _pktOrder = new HashMap<>();
         ArrayNode chain = (ArrayNode) _mapper.readTree(serialization);
@@ -141,7 +140,7 @@ public class IdChain extends AbstractChain {
      * @throws Exception On failure.
      */
     public boolean validate() throws Exception {
-        ChainValidationState cvs = new ChainValidationState(_cc);
+        ChainValidationState cvs = new ChainValidationState(_ct);
         for (IdBlock block : _blocks) {
             if (!cvs.ratchet(block)) {
                 return false;
@@ -155,12 +154,12 @@ public class IdChain extends AbstractChain {
      * through the chain.
      */
     class ChainValidationState {
-        CliqueCache _cc;
+        CliqueTransport _ct;
         IdBlock _antecedentBlock;
         URI _issuer;
 
-        ChainValidationState(CliqueCache cc) {
-            _cc = cc;
+        ChainValidationState(CliqueTransport ct) {
+            _ct = ct;
             _antecedentBlock = null;
             _issuer = null;
         }

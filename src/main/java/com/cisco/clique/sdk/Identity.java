@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.cache.CliqueCache;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -23,21 +22,21 @@ public class Identity {
 
     private URI _acct;
     private Map<String, ECKey> _keys;
-    CliqueCache _cc;
+    CliqueTransport _ct;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
     /**
      * Creates a new identity and initializes it with a new key pair.
      *
-     * @param cc   The local clique cache.
+     * @param ct   The local clique net.
      * @param acct The unique URI to associate with the identity.
      * @throws Exception On failure.
      */
-    public Identity(CliqueCache cc, URI acct) throws Exception {
-        if (null == cc || null == acct) {
+    public Identity(CliqueTransport ct, URI acct) throws Exception {
+        if (null == ct || null == acct) {
             throw new IllegalArgumentException();
         }
-        _cc = cc;
+        _ct = ct;
         _acct = acct;
         _keys = new HashMap<>();
         newKey();
@@ -46,15 +45,15 @@ public class Identity {
     /**
      * Instantiates a new Identity object based on identity information provided in a parsed JSON document.
      *
-     * @param cc   The local clique cache.
+     * @param ct   The local clique net.
      * @param node The parsed JSON document from which to extract identity information.
      * @throws Exception On failure.
      */
-    public Identity(CliqueCache cc, JsonNode node) throws Exception {
-        if (null == cc || null == node) {
+    public Identity(CliqueTransport ct, JsonNode node) throws Exception {
+        if (null == ct || null == node) {
             throw new IllegalArgumentException();
         }
-        _cc = cc;
+        _ct = ct;
         _acct = URI.create(node.findPath("acct").asText());
         _keys = new HashMap<>();
         JsonNode keys = node.findPath("keys");
@@ -82,7 +81,7 @@ public class Identity {
     }
 
     /**
-     * Adds the given key to this identity's keychain.  Also interns the public key to the clique cache.
+     * Adds the given key to this identity's keychain.  Also interns the public key to the clique net.
      *
      * @param key The key to be added to this identity's keychain.
      * @throws Exception On failure.
@@ -92,7 +91,7 @@ public class Identity {
             throw new IllegalArgumentException();
         }
         _keys.put(key.toPublicJWK().computeThumbprint().toString(), key);
-        _cc.getPublicKeyCache().putKey(key.toPublicJWK());
+        _ct.putKey(key.toPublicJWK());
     }
 
     /**
@@ -137,13 +136,18 @@ public class Identity {
 
     /**
      * Returns the currently active key pair for this identity, as determined by consulting the identity's id chain
-     * as currently represented in the local clique cache.
+     * as currently represented in the local clique net.
      *
      * @return This identity's currently active key pair.
      * @throws Exception On failure.
      */
     public ECKey getActiveKey() throws Exception {
-        return getKey(((IdChain) _cc.getChainCache().getChain(_acct)).getActivePkt());
+        ECKey retval = null;
+        IdChain chain = (IdChain) _ct.getChain(_acct);
+        if (null != chain) {
+            retval = getKey(chain.getActivePkt());
+        }
+        return retval;
     }
 
     @Override

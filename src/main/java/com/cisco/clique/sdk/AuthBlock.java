@@ -88,10 +88,10 @@ public class AuthBlock extends AbstractBlock {
     boolean validateSignature(AuthChain.ChainValidationState cvs) throws Exception {
         boolean retval = false;
         String pkt = _jwt.getHeader().getKeyID();
-        ECKey key = cvs._cc.getPublicKeyCache().getKey(pkt);
+        ECKey key = cvs._ct.getKey(pkt);
         if (_jwt.verify(new ECDSAVerifier(key.toECPublicKey()))) {
             URI issuer = URI.create(_jwt.getJWTClaimsSet().getIssuer());
-            IdChain idChain = (IdChain) cvs._cc.getChainCache().getChain(issuer);
+            IdChain idChain = (IdChain) cvs._ct.getChain(issuer);
             String recentPkt = cvs._recentPkts.get(issuer);
             if (null != recentPkt) {
                 retval = idChain.followsPkt(pkt, recentPkt);
