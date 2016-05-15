@@ -45,7 +45,7 @@ public class AuthBlockGrant {
      * @param grantee   The identity to which the grant is extended.
      * @throws Exception On failure.
      */
-    public AuthBlockGrant(CliqueTransport ct, Type type, String privilege, URI grantee) throws Exception {
+    public AuthBlockGrant(Transport ct, Type type, String privilege, URI grantee) throws Exception {
         if (null == ct || null == type || null == privilege || null == grantee) {
             throw new IllegalArgumentException();
         }

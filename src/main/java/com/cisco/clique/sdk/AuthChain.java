@@ -14,14 +14,14 @@ import java.util.*;
 public class AuthChain extends AbstractChain {
 
     private ArrayList<AuthBlock> _blocks;
-    private CliqueTransport _cc;
+    private Transport _cc;
 
     /**
      * Creates a new AuthChain.
      *
      * @param cc The local application's clique net.
      */
-    public AuthChain(CliqueTransport cc) {
+    public AuthChain(Transport cc) {
         _cc = cc;
         _blocks = new ArrayList<>();
     }
@@ -34,7 +34,7 @@ public class AuthChain extends AbstractChain {
      * @param serialization A serialization of the existing full authorization chain.
      * @throws Exception On failure.
      */
-    public AuthChain(CliqueTransport cc, String serialization) throws Exception {
+    public AuthChain(Transport cc, String serialization) throws Exception {
         if (null == cc || null == serialization) {
             throw new IllegalArgumentException();
         }
@@ -138,12 +138,12 @@ public class AuthChain extends AbstractChain {
      */
     class ChainValidationState {
 
-        CliqueTransport _ct;
+        Transport _ct;
         AuthBlock _antecedentBlock;
         Map<URI, String> _recentPkts;
         Map<URI, Map<String, AuthBlockGrant>> _currentGrants;
 
-        ChainValidationState(CliqueTransport ct) {
+        ChainValidationState(Transport ct) {
             _ct = ct;
             _antecedentBlock = null;
             _recentPkts = new HashMap<>();

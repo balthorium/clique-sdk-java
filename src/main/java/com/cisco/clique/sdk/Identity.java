@@ -25,7 +25,7 @@ public class Identity {
     private URI _acct;
     private Set<String> _trustRoots;
     private Map<String, ECKey> _keyChain;
-    private CliqueTransport _ct;
+    private Transport _ct;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
     /**
@@ -35,7 +35,7 @@ public class Identity {
      * @param acct The unique URI to associate with the identity.
      * @throws Exception On failure.
      */
-    public Identity(CliqueTransport ct, URI acct) throws Exception {
+    public Identity(Transport ct, URI acct) throws Exception {
         if (null == ct || null == acct) {
             throw new IllegalArgumentException();
         }
@@ -53,7 +53,7 @@ public class Identity {
      * @param node The parsed JSON document from which to extract identity information.
      * @throws Exception On failure.
      */
-    public Identity(CliqueTransport ct, JsonNode node) throws Exception {
+    public Identity(Transport ct, JsonNode node) throws Exception {
         if (null == ct || null == node) {
             throw new IllegalArgumentException();
         }

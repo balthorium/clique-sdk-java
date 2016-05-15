@@ -15,14 +15,14 @@ public class IdChain extends AbstractChain {
 
     ArrayList<IdBlock> _blocks;
     Map<String, Integer> _pktOrder;
-    CliqueTransport _ct;
+    Transport _ct;
 
     /**
      * Creates a new AuthChain.
      *
      * @param ct The local application's clique net.
      */
-    public IdChain(CliqueTransport ct) {
+    public IdChain(Transport ct) {
         if (null == ct) {
             throw new IllegalArgumentException();
         }
@@ -39,7 +39,7 @@ public class IdChain extends AbstractChain {
      * @param serialization A serialization of the existing full identity chain.
      * @throws Exception On failure.
      */
-    public IdChain(CliqueTransport ct, String serialization) throws Exception {
+    public IdChain(Transport ct, String serialization) throws Exception {
         if (null == ct || null == serialization) {
             throw new IllegalArgumentException();
         }
@@ -152,12 +152,12 @@ public class IdChain extends AbstractChain {
      * through the chain.
      */
     class ChainValidationState {
-        CliqueTransport _ct;
+        Transport _ct;
         Set<String> _trustRoots;
         IdBlock _antecedentBlock;
         URI _issuer;
 
-        ChainValidationState(CliqueTransport ct, Set<String> trustRoots) {
+        ChainValidationState(Transport ct, Set<String> trustRoots) {
             _ct = ct;
             _trustRoots = trustRoots;
             _antecedentBlock = null;

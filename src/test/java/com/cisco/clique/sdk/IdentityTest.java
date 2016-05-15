@@ -11,12 +11,12 @@ import java.security.Security;
 public class IdentityTest {
 
     private static final URI aliceUri = URI.create("acct:alice@example.com");
-    private CliqueTransport _ct;
+    private Transport _ct;
 
     @BeforeClass
     public void setUp() {
         Security.addProvider(new BouncyCastleProvider());
-        _ct = new CliqueTransportLocal();
+        _ct = new TransportLocal();
     }
 
     @Test
