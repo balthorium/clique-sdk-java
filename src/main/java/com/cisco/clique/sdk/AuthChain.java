@@ -33,7 +33,7 @@ public class AuthChain extends AbstractChain {
      *
      * @param cc            The local application's clique cache.
      * @param serialization A serialization of the existing full authorization chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public AuthChain(CliqueCache cc, String serialization) throws Exception {
         if (null == cc || null == serialization) {
@@ -66,7 +66,7 @@ public class AuthChain extends AbstractChain {
      * Adds a block to the chain, performs no validation.
      *
      * @param block Block to be added to the chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     void addBlock(AuthBlock block) throws Exception {
         _blocks.add(block);
@@ -79,7 +79,7 @@ public class AuthChain extends AbstractChain {
      * @param acct      The URL of the identity whose privileges are being queried.
      * @param privilege The privilege to be checked.
      * @return True if the given identity has the given privilege, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public boolean hasPrivilege(URI acct, String privilege) throws Exception {
         if (null == acct || null == privilege) {
@@ -115,7 +115,7 @@ public class AuthChain extends AbstractChain {
      *
      * @param genesisBlockHash The expected hash of the chain's genesis block.
      * @return True if the chain is valid, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public boolean validate(String genesisBlockHash) throws Exception {
         if (null == genesisBlockHash) {

@@ -44,7 +44,7 @@ public class AuthBlockGrant {
      * @param type      The type of grant being asserted.
      * @param privilege The privilege to which the grant applies.
      * @param grantee   The identity to which the grant is extended.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public AuthBlockGrant(CliqueCache cc, Type type, String privilege, URI grantee) throws Exception {
         if (null == cc || null == type || null == privilege || null == grantee) {

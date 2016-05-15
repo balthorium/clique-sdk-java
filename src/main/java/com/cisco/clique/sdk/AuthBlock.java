@@ -28,7 +28,7 @@ public class AuthBlock extends AbstractBlock {
      * @param subject   The URI of the block subject (should be set only for genesis block).
      * @param grants    A collection of grants to be asserted in this block.
      * @param ant       The SHA-256 hash of the preceding block's signed JWT serialized form.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     AuthBlock(URI issuer, ECKey issuerKey, URI subject, JSONArray grants, String ant) throws Exception {
         super(issuerKey, new JWTClaimsSet.Builder()
@@ -42,7 +42,7 @@ public class AuthBlock extends AbstractBlock {
      * Create a block from a received JWT serialization.
      *
      * @param serialization A block in signed JWT serialized form.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     AuthBlock(String serialization) throws Exception {
         super(serialization);
@@ -52,7 +52,7 @@ public class AuthBlock extends AbstractBlock {
      * Returns list containing grants asserted within this block as AuthBlockGrant objects.
      *
      * @return A list containing all grants asserted within this block.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     List<AuthBlockGrant> getAuthBlockGrants() throws Exception {
         List<AuthBlockGrant> grantList = new ArrayList<>();
@@ -68,7 +68,7 @@ public class AuthBlock extends AbstractBlock {
      *
      * @param cvs The validation state following validation of preceding blocks of the chain.
      * @return True if the antecedent attribute state is valid, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     boolean validateAntecedent(AuthChain.ChainValidationState cvs) throws Exception {
         Object ant = _jwt.getJWTClaimsSet().getClaim("ant");
@@ -83,7 +83,7 @@ public class AuthBlock extends AbstractBlock {
      *
      * @param cvs The validation state following validation of preceding blocks of the chain.
      * @return True if the block signature is successfully verified, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     boolean validateSignature(AuthChain.ChainValidationState cvs) throws Exception {
         boolean retval = false;
@@ -109,7 +109,7 @@ public class AuthBlock extends AbstractBlock {
      *
      * @param cvs The validation state following validation of preceding blocks of the chain.
      * @return True if the grants asserted by this block are valid.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     boolean validateGrants(AuthChain.ChainValidationState cvs) throws Exception {
         Object ant = _jwt.getJWTClaimsSet().getClaim("ant");
@@ -195,7 +195,7 @@ public class AuthBlock extends AbstractBlock {
          * Builds an AuthBlock based on state of this builder.
          *
          * @return A new AuthBlock which has already been added to the chain provided in the builder constructor.
-         * @throws Exception
+         * @throws Exception On failure.
          */
         public AuthBlock build() throws Exception {
             String ant = null;

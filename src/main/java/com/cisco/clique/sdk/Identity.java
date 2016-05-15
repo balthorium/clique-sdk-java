@@ -31,7 +31,7 @@ public class Identity {
      *
      * @param cc   The local clique cache.
      * @param acct The unique URI to associate with the identity.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public Identity(CliqueCache cc, URI acct) throws Exception {
         if (null == cc || null == acct) {
@@ -48,7 +48,7 @@ public class Identity {
      *
      * @param cc   The local clique cache.
      * @param node The parsed JSON document from which to extract identity information.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public Identity(CliqueCache cc, JsonNode node) throws Exception {
         if (null == cc || null == node) {
@@ -69,7 +69,7 @@ public class Identity {
      * Returns a JSON object representing this identity (including private key material - so be careful).
      *
      * @return A JSON object representing this identity.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public ObjectNode toJson() throws Exception {
         ObjectNode identity = _mapper.createObjectNode();
@@ -85,7 +85,7 @@ public class Identity {
      * Adds the given key to this identity's keychain.  Also interns the public key to the clique cache.
      *
      * @param key The key to be added to this identity's keychain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     void addKey(ECKey key) throws Exception {
         if (null == key) {
@@ -99,7 +99,7 @@ public class Identity {
      * Creates a new asymmetric key pair and adds it to this identity's keychain.
      *
      * @return The newly created asymmetric key pair.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public ECKey newKey() throws Exception {
         ECKey.Curve crv = ECKey.Curve.P_256;
@@ -140,7 +140,7 @@ public class Identity {
      * as currently represented in the local clique cache.
      *
      * @return This identity's currently active key pair.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public ECKey getActiveKey() throws Exception {
         return getKey(((IdChain) _cc.getChainCache().getChain(_acct)).getActivePkt());

@@ -31,7 +31,7 @@ abstract class AbstractBlock {
      *
      * @param key           The key to sign this block - must include the private key material.
      * @param claimsBuilder Represents the claims to be embedded within this AbstractBlock.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     protected AbstractBlock(ECKey key, JWTClaimsSet.Builder claimsBuilder) throws Exception {
         if (null == key || null == claimsBuilder) {
@@ -49,7 +49,7 @@ abstract class AbstractBlock {
      * Creates an AbstractBlock based on a given serialization of a signed JWT.
      *
      * @param serialization The serialization of a signed JWT.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     AbstractBlock(String serialization) throws Exception {
         if (null == serialization) {
@@ -64,7 +64,7 @@ abstract class AbstractBlock {
      * Emits a representation of this block's payload as a parsed JSON object.
      *
      * @return Parsed JSON object representing block's payload.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     ObjectNode toJson() throws Exception {
         return (ObjectNode) _mapper.readTree(_jwt.getPayload().toString());
@@ -74,7 +74,7 @@ abstract class AbstractBlock {
      * Generates a SHA-256 hash of this block's JWT serialization and encodes as a UTF8 hex string.
      *
      * @return SHA-256 hash of this block.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     String getHash() throws Exception {
         return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(serialize().getBytes(StandardCharsets.UTF_8)));
@@ -84,7 +84,7 @@ abstract class AbstractBlock {
      * Returns the subject of the block as a URI.
      *
      * @return The subject of the block as a URI.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     URI getSubject() throws Exception {
         return URI.create(_jwt.getJWTClaimsSet().getSubject());
@@ -94,7 +94,7 @@ abstract class AbstractBlock {
      * Emits the signed JWT serialization of this block.
      *
      * @return Signed JWT serialization of this block.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     String serialize() throws Exception {
         if (null == _serialization) {

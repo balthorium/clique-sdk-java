@@ -58,7 +58,7 @@ abstract public class AbstractChain {
      * for producing human-readable representations of the chain (e.g. toString).
      *
      * @return A JSON array representing the chain blocks' payloads.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     private ArrayNode toJsonPayloadOnly() throws Exception {
         ArrayNode chain = _mapper.createArrayNode();
@@ -72,7 +72,7 @@ abstract public class AbstractChain {
      * Returns a JSON array with text elements representing the JWT serialization of each block.
      *
      * @return A JSON array representing the full chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     ArrayNode toJson() throws Exception {
         ArrayNode chain = _mapper.createArrayNode();
@@ -86,7 +86,7 @@ abstract public class AbstractChain {
      * Returns a JSON document representing a serialization of the entire chain.
      *
      * @return Text representing the full serialization of this chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public String serialize() throws Exception {
         return _mapper
@@ -98,7 +98,7 @@ abstract public class AbstractChain {
      * Returns the subject of this chain, as defined in the initial block.
      *
      * @return The subject of this chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public URI getSubject() throws Exception {
         AbstractBlock block = getBlock(0);
@@ -112,7 +112,7 @@ abstract public class AbstractChain {
      * Returns the SHA-256 hash of the signed JWT serialization of this chain's initial block.
      *
      * @return The hash of this chains initial block.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public String getGenesisHash() throws Exception {
         return getBlock(0).getHash();

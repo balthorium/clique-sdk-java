@@ -41,7 +41,7 @@ public class IdChain extends AbstractChain {
      *
      * @param cc            The local application's clique cache.
      * @param serialization A serialization of the existing full identity chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public IdChain(CliqueCache cc, String serialization) throws Exception {
         if (null == cc || null == serialization) {
@@ -75,7 +75,7 @@ public class IdChain extends AbstractChain {
      * Adds a block to the chain, performs no validation.
      *
      * @param block Block to be added to the chain.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     void addBlock(IdBlock block) throws Exception {
         if (null == block) {
@@ -115,7 +115,7 @@ public class IdChain extends AbstractChain {
      * Returns the public key thumbprint (pkt) of the most recently added block of the chain.
      *
      * @return The most recently appended key.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public String getActivePkt() throws Exception {
         return _blocks.get(_blocks.size() - 1).getPkt();
@@ -138,7 +138,7 @@ public class IdChain extends AbstractChain {
      * back recursively to an identity in the trust root.
      *
      * @return True if the chain is valid, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     public boolean validate() throws Exception {
         ChainValidationState cvs = new ChainValidationState(_cc);

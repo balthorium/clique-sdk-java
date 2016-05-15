@@ -21,7 +21,7 @@ public class IdBlock extends AbstractBlock {
      * @param subject       The subjecvt of the block.
      * @param subjectPubKey The public key of the subject.
      * @param ant           The antecedent block hash.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     IdBlock(URI issuer, ECKey issuerKey, URI subject, ECKey subjectPubKey, String ant) throws Exception {
         super(issuerKey, new JWTClaimsSet.Builder()
@@ -35,7 +35,7 @@ public class IdBlock extends AbstractBlock {
      * Creates an IdBlock from an existing signed JWT serialization.
      *
      * @param serialization A signed JWT serialization.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     IdBlock(String serialization) throws Exception {
         super(serialization);
@@ -45,7 +45,7 @@ public class IdBlock extends AbstractBlock {
      * Returns the public key thumbprint (pkt) claim contained in the ID block payload.
      *
      * @return The public key thumbprint.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     String getPkt() throws Exception {
         return _jwt.getJWTClaimsSet().getClaim("pkt").toString();
@@ -56,7 +56,7 @@ public class IdBlock extends AbstractBlock {
      *
      * @param cvs The chain validation state providing context for validation.
      * @return True if the block's antecedent is valid, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     boolean validateAntecedent(IdChain.ChainValidationState cvs) throws Exception {
         Object ant = _jwt.getJWTClaimsSet().getClaim("ant");
@@ -72,7 +72,7 @@ public class IdBlock extends AbstractBlock {
      *
      * @param cvs The chain validation state providing context for validation.
      * @return True if the block's signature is valid, false otherwise.
-     * @throws Exception
+     * @throws Exception On failure.
      */
     boolean validateSignature(IdChain.ChainValidationState cvs) throws Exception {
         ECKey key = null;
@@ -156,7 +156,7 @@ public class IdBlock extends AbstractBlock {
          * Builds an ID block based on current builder.
          *
          * @return A new ID block which has already been added to the IdChain provided in the builder constructor.
-         * @throws Exception
+         * @throws Exception On failure.
          */
         public IdBlock build() throws Exception {
             String ant = (_chain._blocks.size() > 0) ? _chain._blocks.get(_chain._blocks.size() - 1).getHash() : null;
