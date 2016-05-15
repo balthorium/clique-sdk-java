@@ -1,28 +1,34 @@
 description = 'Clique Java SDK'
 
-allprojects {
-  group = 'com.cisco.clique.sdk'
-  version = '0.1'
-  apply plugin: 'java'
-  apply plugin: 'maven'
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
-  repositories {
+group = 'com.cisco.clique.sdk'
+version = '0.1'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
     mavenCentral()
-    mavenLocal()
-  }
 }
 
 dependencies {
-    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version:'1.54'
-    compile group: 'com.nimbusds', name: 'nimbus-jose-jwt', version:'4.11'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.7.0'
-    compile group: 'commons-codec', name: 'commons-codec', version:'1.10'
-    compile group: 'com.google.guava', name: 'guava-collections', version:'r03'
-    testCompile group: 'junit', name: 'junit', version:'3.8.1'
+    compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.54'
+    compile group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '4.11'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.7.0'
+    compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
+    compile group: 'com.google.guava', name: 'guava-collections', version: 'r03'
+    compile group: 'org.testng', name: 'testng', version: '6.9.10'
+}
+
+compileJava {
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
+}
+
+test {
+    useTestNG()
 }
 
 task runSDK(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'com.cisco.clique.example.DistributedApp'
 }
+
