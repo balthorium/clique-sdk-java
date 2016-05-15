@@ -81,6 +81,16 @@ abstract class AbstractBlock {
     }
 
     /**
+     * Returns the issuer of the block as a URI.
+     *
+     * @return The issuer of the block as a URI.
+     * @throws Exception On failure.
+     */
+    URI getIssuer() throws Exception {
+        return URI.create(_jwt.getJWTClaimsSet().getIssuer());
+    }
+
+    /**
      * Returns the subject of the block as a URI.
      *
      * @return The subject of the block as a URI.

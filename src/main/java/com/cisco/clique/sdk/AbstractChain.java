@@ -95,6 +95,20 @@ abstract public class AbstractChain {
     }
 
     /**
+     * Returns the issuer of this chain, as defined in the initial block.
+     *
+     * @return The issuer of this chain.
+     * @throws Exception On failure.
+     */
+    public URI getIssuer() throws Exception {
+        AbstractBlock block = getBlock(0);
+        if (null != block) {
+            return block.getIssuer();
+        }
+        return null;
+    }
+
+    /**
      * Returns the subject of this chain, as defined in the initial block.
      *
      * @return The subject of this chain.

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Represents an identity chain.  An identity chain is an ordered collection of identity blocks,
@@ -103,7 +100,7 @@ public class IdChain extends AbstractChain {
      * @param pkt The evaluated thumbprint.
      * @return True if pkt is found in the id chain, false otherwise.
      */
-    public boolean containsPkt(String pkt) {
+    boolean containsPkt(String pkt) {
         if (null == pkt) {
             throw new IllegalArgumentException();
         }
@@ -136,11 +133,12 @@ public class IdChain extends AbstractChain {
      * is either self signed by an identity in the trust root, or is signed by an identity that can be traced
      * back recursively to an identity in the trust root.
      *
+     * @param trustRoots The set of trust roots to use for validation of this chain.
      * @return True if the chain is valid, false otherwise.
      * @throws Exception On failure.
      */
-    public boolean validate() throws Exception {
-        ChainValidationState cvs = new ChainValidationState(_ct);
+    public boolean validate(Set<String> trustRoots) throws Exception {
+        ChainValidationState cvs = new ChainValidationState(_ct, trustRoots);
         for (IdBlock block : _blocks) {
             if (!cvs.ratchet(block)) {
                 return false;
@@ -155,11 +153,13 @@ public class IdChain extends AbstractChain {
      */
     class ChainValidationState {
         CliqueTransport _ct;
+        Set<String> _trustRoots;
         IdBlock _antecedentBlock;
         URI _issuer;
 
-        ChainValidationState(CliqueTransport ct) {
+        ChainValidationState(CliqueTransport ct, Set<String> trustRoots) {
             _ct = ct;
+            _trustRoots = trustRoots;
             _antecedentBlock = null;
             _issuer = null;
         }

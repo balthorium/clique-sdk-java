@@ -60,11 +60,14 @@ public class IdBlock extends AbstractBlock {
      */
     boolean validateAntecedent(IdChain.ChainValidationState cvs) throws Exception {
         Object ant = _jwt.getJWTClaimsSet().getClaim("ant");
-        if (null == ant || null == cvs._antecedentBlock) {
-            cvs._issuer = URI.create(_jwt.getJWTClaimsSet().getClaim("issuer").toString());
-            return null == ant && null == cvs._antecedentBlock;
+
+        // if this is the antecedent block then no validation required, just set the chain issuer on cvs
+        if (null == ant && null == cvs._antecedentBlock) {
+            cvs._issuer = URI.create(_jwt.getJWTClaimsSet().getClaim("iss").toString());
+            return true;
         }
-        return ant.toString().equals(cvs._antecedentBlock.getHash());
+
+        return null != ant && null != cvs._antecedentBlock && ant.toString().equals(cvs._antecedentBlock.getHash());
     }
 
     /**
@@ -75,18 +78,25 @@ public class IdBlock extends AbstractBlock {
      * @throws Exception On failure.
      */
     boolean validateSignature(IdChain.ChainValidationState cvs) throws Exception {
-        ECKey key = null;
+
+        // if this blocks hash matches a trust root hash then no need to validate signature
+        if (cvs._trustRoots.contains(getHash())) {
+            return true;
+        }
+
+        // pull the verification public key signature out of the block's kid header attribute
         String pkt = _jwt.getHeader().getKeyID();
-        if ((null != cvs._antecedentBlock) && pkt.equals(cvs._antecedentBlock.getPkt())) {
-            key = cvs._ct.getKey(pkt);
-        } else {
-            // TODO: Handle self-signed chains by validating the genesis block against trust root hashes
+
+        // if this is the genesis block, or the block is not signed by antecedent public key...
+        if ((null == cvs._antecedentBlock) || !pkt.equals(cvs._antecedentBlock.getPkt())) {
+
+            // fetch the IdChain of the genesis-block issuer and see if pkt is their key
             IdChain issuerChain = (IdChain) cvs._ct.getChain(cvs._issuer);
-            if (issuerChain.validate() && issuerChain.containsPkt(pkt)) {
-                key = cvs._ct.getKey(pkt);
+            if (!issuerChain.validate(cvs._trustRoots) || !issuerChain.containsPkt(pkt)) {
+                pkt = null;
             }
         }
-        return (null != key) && _jwt.verify(new ECDSAVerifier(key.toECPublicKey()));
+        return (null != pkt) && _jwt.verify(new ECDSAVerifier(cvs._ct.getKey(pkt).toECPublicKey()));
     }
 
     /**

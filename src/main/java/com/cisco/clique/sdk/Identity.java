@@ -13,7 +13,9 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents an identity, including the identity's unique URI, and a collection of it's key pairs.
@@ -21,8 +23,9 @@ import java.util.Map;
 public class Identity {
 
     private URI _acct;
-    private Map<String, ECKey> _keys;
-    CliqueTransport _ct;
+    private Set<String> _trustRoots;
+    private Map<String, ECKey> _keyChain;
+    private CliqueTransport _ct;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
     /**
@@ -38,7 +41,8 @@ public class Identity {
         }
         _ct = ct;
         _acct = acct;
-        _keys = new HashMap<>();
+        _trustRoots = new HashSet<>();
+        _keyChain = new HashMap<>();
         newKey();
     }
 
@@ -55,7 +59,7 @@ public class Identity {
         }
         _ct = ct;
         _acct = URI.create(node.findPath("acct").asText());
-        _keys = new HashMap<>();
+        _keyChain = new HashMap<>();
         JsonNode keys = node.findPath("keys");
         if (null != keys && keys instanceof ArrayNode) {
             for (JsonNode jwk : keys) {
@@ -74,7 +78,7 @@ public class Identity {
         ObjectNode identity = _mapper.createObjectNode();
         identity.put("acct", _acct.toString());
         ArrayNode keys = identity.putArray("keys");
-        for (ECKey key : _keys.values()) {
+        for (ECKey key : _keyChain.values()) {
             keys.add(_mapper.readTree(key.toJSONString()));
         }
         return identity;
@@ -90,17 +94,18 @@ public class Identity {
         if (null == key) {
             throw new IllegalArgumentException();
         }
-        _keys.put(key.toPublicJWK().computeThumbprint().toString(), key);
+        _keyChain.put(key.toPublicJWK().computeThumbprint().toString(), key);
         _ct.putKey(key.toPublicJWK());
     }
 
     /**
      * Creates a new asymmetric key pair and adds it to this identity's keychain.
      *
-     * @return The newly created asymmetric key pair.
      * @throws Exception On failure.
      */
-    public ECKey newKey() throws Exception {
+    public void newKey() throws Exception {
+
+        // generate a new key pair
         ECKey.Curve crv = ECKey.Curve.P_256;
         KeyPairGenerator gen = KeyPairGenerator.getInstance("ECDSA");
         gen.initialize(crv.toECParameterSpec());
@@ -108,12 +113,42 @@ public class Identity {
         ECKey key = new ECKey.Builder(crv, (ECPublicKey) pair.getPublic())
                 .privateKey((ECPrivateKey) pair.getPrivate())
                 .build();
+
+        // add key pair to local key chain
         addKey(key);
-        return key;
+
+        // append a new block to this identity's IdChain
+        IdChain idChain = (IdChain) _ct.getChain(_acct);
+        if (null != idChain) {
+
+            // append to existing IdChain
+            idChain.newBlockBuilder()
+                    .setIssuer(_acct)
+                    .setIssuerKey(getActiveKey())
+                    .setSubject(_acct)
+                    .setSubjectPubKey(key.toPublicJWK())
+                    .build();
+        }
+        else {
+            // create a new self-asserted IdChain
+            idChain = new IdChain(_ct);
+            idChain.newBlockBuilder()
+                    .setIssuer(_acct)
+                    .setIssuerKey(key)
+                    .setSubject(_acct)
+                    .setSubjectPubKey(key.toPublicJWK())
+                    .build();
+
+            // implicitly trust locally created IdChain
+            _trustRoots.add(idChain.getGenesisHash());
+        }
+
+        // publish the new version of this identity's IdChain
+        _ct.putChain(idChain);
     }
 
     /**
-     * Returns the unqiue URI of this identity.
+     * Returns the unique URI of this identity.
      *
      * @return The unique URI of this identity.
      */
@@ -131,7 +166,7 @@ public class Identity {
         if (null == pkt) {
             throw new IllegalArgumentException();
         }
-        return _keys.get(pkt);
+        return _keyChain.get(pkt);
     }
 
     /**
@@ -148,6 +183,15 @@ public class Identity {
             retval = getKey(chain.getActivePkt());
         }
         return retval;
+    }
+
+    /**
+     * Returns a set of IdBlock hashes that are trusted implicitly by this identity.
+     *
+     * @return A set of hashes of IdBlocks which constitute trust roots.
+     */
+    public Set<String> getTrustRoots() {
+        return _trustRoots;
     }
 
     @Override
