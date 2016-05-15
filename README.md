@@ -1,13 +1,7 @@
 # Clique Java SDK
 
-## Building
+## Build, Test, Install, and Generate Javadocs
 
 ```bash
-$ gradle javadoc install
-```
-
-## Run the SDK "DistributedApp" example.
-
-```bash
-$ gradle runSDK
+$ gradle test install javadoc
 ```
