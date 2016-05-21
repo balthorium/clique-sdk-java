@@ -11,18 +11,14 @@ import java.util.*;
  * where the ordering is explicitly asserted through the inclusion within each block of the preceding block's
  * hash.  An authorization chain is verifiable through the application of rules described in the Clique specification.
  */
-public class AuthChain extends AbstractChain {
+class AuthChain extends AbstractChain {
 
     private ArrayList<AuthBlock> _blocks;
-    private Transport _cc;
 
     /**
      * Creates a new AuthChain.
-     *
-     * @param cc The local application's clique net.
      */
-    public AuthChain(Transport cc) {
-        _cc = cc;
+    AuthChain() {
         _blocks = new ArrayList<>();
     }
 
@@ -30,15 +26,13 @@ public class AuthChain extends AbstractChain {
      * Parses an existing authorization chain to an AuthChain object.  The existing chain is provided in it's
      * serialized form.  Note this operation will not automatically perform validation of the provided chain.
      *
-     * @param cc            The local application's clique net.
      * @param serialization A serialization of the existing full authorization chain.
      * @throws Exception On failure.
      */
-    public AuthChain(Transport cc, String serialization) throws Exception {
-        if (null == cc || null == serialization) {
+    AuthChain(String serialization) throws Exception {
+        if (null == serialization) {
             throw new IllegalArgumentException();
         }
-        _cc = cc;
         _blocks = new ArrayList<>();
         ArrayNode chain = (ArrayNode) _mapper.readTree(serialization);
         for (JsonNode block : chain) {
@@ -57,7 +51,7 @@ public class AuthChain extends AbstractChain {
     }
 
     @Override
-    public int size() {
+    int size() {
         return _blocks.size();
     }
 
@@ -80,7 +74,7 @@ public class AuthChain extends AbstractChain {
      * @return True if the given identity has the given privilege, false otherwise.
      * @throws Exception On failure.
      */
-    public boolean hasPrivilege(URI acct, String privilege) throws Exception {
+    boolean hasPrivilege(URI acct, String privilege) throws Exception {
         if (null == acct || null == privilege) {
             throw new IllegalArgumentException();
         }
@@ -102,7 +96,7 @@ public class AuthChain extends AbstractChain {
      *
      * @return A builder for creating AuthBlock objects.
      */
-    public AuthBlock.Builder newBlockBuilder() {
+    AuthBlock.Builder newBlockBuilder() {
         return new AuthBlock.Builder(this);
     }
 
@@ -116,12 +110,12 @@ public class AuthChain extends AbstractChain {
      * @return True if the chain is valid, false otherwise.
      * @throws Exception On failure.
      */
-    public boolean validate(String genesisBlockHash) throws Exception {
+    boolean validate(String genesisBlockHash) throws Exception {
         if (null == genesisBlockHash) {
             throw new IllegalArgumentException();
         }
         if (getGenesisHash().equals(genesisBlockHash)) {
-            ChainValidationState cvs = new ChainValidationState(_cc);
+            ChainValidationState cvs = new ChainValidationState();
             for (AuthBlock block : _blocks) {
                 if (!cvs.ratchet(block)) {
                     return false;
@@ -138,15 +132,11 @@ public class AuthChain extends AbstractChain {
      */
     class ChainValidationState {
 
-        Transport _ct;
         AuthBlock _antecedentBlock;
-        Map<URI, String> _recentPkts;
         Map<URI, Map<String, AuthBlockGrant>> _currentGrants;
 
-        ChainValidationState(Transport ct) {
-            _ct = ct;
+        ChainValidationState() {
             _antecedentBlock = null;
-            _recentPkts = new HashMap<>();
             _currentGrants = new HashMap<>();
         }
 
@@ -162,10 +152,6 @@ public class AuthChain extends AbstractChain {
                 URI grantee = authBlockGrant.getGrantee();
                 _currentGrants.putIfAbsent(grantee, new HashMap<>());
                 _currentGrants.get(grantee).put(authBlockGrant.getPrivilege(), authBlockGrant);
-                String thumbprint = authBlockGrant.getPkt();
-                if (null != thumbprint) {
-                    _recentPkts.put(grantee, thumbprint);
-                }
             }
 
             _antecedentBlock = block;

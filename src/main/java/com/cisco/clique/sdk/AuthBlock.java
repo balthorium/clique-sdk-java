@@ -18,7 +18,7 @@ import java.util.Map;
  * the issuer, the subject (only in the first block of a chain), and a collection of privilege grants asserted by this
  * block, respectively.
  */
-public class AuthBlock extends AbstractBlock {
+class AuthBlock extends AbstractBlock {
 
     /**
      * Create new block in an AuthChain.
@@ -87,17 +87,13 @@ public class AuthBlock extends AbstractBlock {
      */
     boolean validateSignature(AuthChain.ChainValidationState cvs) throws Exception {
         boolean retval = false;
+        PublicRepo repo = SdkUtils.getPublicRepo();
         String pkt = _jwt.getHeader().getKeyID();
-        ECKey key = cvs._ct.getKey(pkt);
+        ECKey key = repo.getKey(pkt);
         if (_jwt.verify(new ECDSAVerifier(key.toECPublicKey()))) {
             URI issuer = URI.create(_jwt.getJWTClaimsSet().getIssuer());
-            IdChain idChain = (IdChain) cvs._ct.getChain(issuer);
-            String recentPkt = cvs._recentPkts.get(issuer);
-            if (null != recentPkt) {
-                retval = idChain.followsPkt(pkt, recentPkt);
-            } else {
-                retval = idChain.containsPkt(pkt);
-            }
+            IdChain idChain = (IdChain) repo.getChain(issuer);
+            retval = idChain.containsPkt(pkt);
         }
         return retval;
     }
@@ -152,7 +148,7 @@ public class AuthBlock extends AbstractBlock {
          * @param issuer The identity to act as issuer (iss) of this block.
          * @return This builder.
          */
-        public Builder setIssuer(URI issuer) {
+        Builder setIssuer(URI issuer) {
             _issuer = issuer;
             return this;
         }
@@ -163,7 +159,7 @@ public class AuthBlock extends AbstractBlock {
          * @param issuerKey The URI of the identity that signs this block.
          * @return This builder.
          */
-        public Builder setIssuerKey(ECKey issuerKey) {
+        Builder setIssuerKey(ECKey issuerKey) {
             _issuerKey = issuerKey;
             return this;
         }
@@ -175,7 +171,7 @@ public class AuthBlock extends AbstractBlock {
          * @param subject The URL of a subject resource for which this chain's privilege policy applies.
          * @return An AuthChain builder.
          */
-        public Builder setSubject(URI subject) {
+        Builder setSubject(URI subject) {
             _subject = subject;
             return this;
         }
@@ -186,7 +182,7 @@ public class AuthBlock extends AbstractBlock {
          * @param grant Add a grant to be asserted by this block.
          * @return This builder.
          */
-        public Builder addGrant(AuthBlockGrant grant) {
+        Builder addGrant(AuthBlockGrant grant) {
             _grants.add(grant);
             return this;
         }
@@ -197,7 +193,7 @@ public class AuthBlock extends AbstractBlock {
          * @return A new AuthBlock which has already been added to the chain provided in the builder constructor.
          * @throws Exception On failure.
          */
-        public AuthBlock build() throws Exception {
+        AuthBlock build() throws Exception {
             String ant = null;
             URI subject = null;
 

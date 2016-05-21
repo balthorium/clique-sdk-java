@@ -4,48 +4,42 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Represents an identity chain.  An identity chain is an ordered collection of identity blocks,
  * where the ordering is explicitly asserted through the inclusion within each block of the preceding block's
  * hash.  An identity chain is verifiable through the application of rules described in the Clique specification.
  */
-public class IdChain extends AbstractChain {
+class IdChain extends AbstractChain {
 
     ArrayList<IdBlock> _blocks;
-    Map<String, Integer> _pktOrder;
-    Transport _ct;
+    Set<String> _pkts;
 
     /**
      * Creates a new AuthChain.
-     *
-     * @param ct The local application's clique net.
      */
-    public IdChain(Transport ct) {
-        if (null == ct) {
-            throw new IllegalArgumentException();
-        }
-        _ct = ct;
+    IdChain() {
         _blocks = new ArrayList<>();
-        _pktOrder = new HashMap<>();
+        _pkts = new HashSet<>();
     }
 
     /**
      * Parses an existing identity chain to an IdChain object.  The existing chain is provided in it's
      * serialized form.  Note this operation will not automatically perform validation of the provided chain.
      *
-     * @param ct            The local application's clique net.
      * @param serialization A serialization of the existing full identity chain.
      * @throws Exception On failure.
      */
-    public IdChain(Transport ct, String serialization) throws Exception {
-        if (null == ct || null == serialization) {
+    IdChain(String serialization) throws Exception {
+        if (null == serialization) {
             throw new IllegalArgumentException();
         }
-        _ct = ct;
         _blocks = new ArrayList<>();
-        _pktOrder = new HashMap<>();
+        _pkts = new HashSet<>();
         ArrayNode chain = (ArrayNode) _mapper.readTree(serialization);
         for (JsonNode block : chain) {
             addBlock(new IdBlock(block.asText()));
@@ -63,7 +57,7 @@ public class IdChain extends AbstractChain {
     }
 
     @Override
-    public int size() {
+    int size() {
         return _blocks.size();
     }
 
@@ -78,20 +72,7 @@ public class IdChain extends AbstractChain {
             throw new IllegalArgumentException();
         }
         _blocks.add(block);
-        _pktOrder.put(block.getPkt(), _pktOrder.size());
-    }
-
-    /**
-     * Checks to see if the public key thumbprints pkt1 and pkt2 are both within this chain, and if so, whether
-     * pkt1 is equal to or subsequent to pkt2.  If either thumbprint is not present in the chain, or pkt1 precedes
-     * pkt2, this test will fail.
-     *
-     * @param pkt1 The subject thumbprint.
-     * @param pkt2 The object thumbprint.
-     * @return True of pkt2 is equal to or later than pkt1 in the chain, false otherwise.
-     */
-    boolean followsPkt(String pkt1, String pkt2) throws Exception {
-        return containsPkt(pkt1) && containsPkt(pkt2) && _pktOrder.get(pkt2) <= _pktOrder.get(pkt1);
+        _pkts.add(block.getPkt());
     }
 
     /**
@@ -104,7 +85,7 @@ public class IdChain extends AbstractChain {
         if (null == pkt) {
             throw new IllegalArgumentException();
         }
-        return _pktOrder.containsKey(pkt);
+        return _pkts.contains(pkt);
     }
 
     /**
@@ -113,7 +94,7 @@ public class IdChain extends AbstractChain {
      * @return The most recently appended key.
      * @throws Exception On failure.
      */
-    public String getActivePkt() throws Exception {
+    String getActivePkt() throws Exception {
         return _blocks.get(_blocks.size() - 1).getPkt();
     }
 
@@ -124,7 +105,7 @@ public class IdChain extends AbstractChain {
      *
      * @return A builder for creating IdBlock objects.
      */
-    public IdBlock.Builder newBlockBuilder() {
+    IdBlock.Builder newBlockBuilder() {
         return new IdBlock.Builder(this);
     }
 
@@ -137,8 +118,8 @@ public class IdChain extends AbstractChain {
      * @return True if the chain is valid, false otherwise.
      * @throws Exception On failure.
      */
-    public boolean validate(Set<String> trustRoots) throws Exception {
-        ChainValidationState cvs = new ChainValidationState(_ct, trustRoots);
+    boolean validate(Set<String> trustRoots) throws Exception {
+        ChainValidationState cvs = new ChainValidationState(trustRoots);
         for (IdBlock block : _blocks) {
             if (!cvs.ratchet(block)) {
                 return false;
@@ -152,13 +133,11 @@ public class IdChain extends AbstractChain {
      * through the chain.
      */
     class ChainValidationState {
-        Transport _ct;
         Set<String> _trustRoots;
         IdBlock _antecedentBlock;
         URI _issuer;
 
-        ChainValidationState(Transport ct, Set<String> trustRoots) {
-            _ct = ct;
+        ChainValidationState(Set<String> trustRoots) {
             _trustRoots = trustRoots;
             _antecedentBlock = null;
             _issuer = null;

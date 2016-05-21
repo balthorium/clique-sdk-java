@@ -9,17 +9,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This is a simple implementation of the Transport interface that does nothing more than maintain a local
- * cache of keys and chains.  This is an in-memory repository and does not interact with any other services or
+ * This is a simple implementation of the PublicRepo interface that does nothing more than maintain a local
+ * cache of public keys and chains.  This is an in-memory repository and does not interact with any other services or
  * peers over the network.  This is mainly used for simple demonstrations and testing.
  */
-public class TransportLocal implements Transport {
+public class LocalPublicRepo implements PublicRepo {
 
     Map<String, ECKey> _keys;
     Map<URI, AbstractChain> _chains;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
-    public TransportLocal() {
+    public LocalPublicRepo() {
         _keys = new HashMap<>();
         _chains = new HashMap<>();
     }

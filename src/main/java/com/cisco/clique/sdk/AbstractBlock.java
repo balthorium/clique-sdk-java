@@ -21,16 +21,16 @@ import java.security.MessageDigest;
  */
 abstract class AbstractBlock {
 
+    protected static final ObjectMapper _mapper = SdkUtils.createMapper();
     protected ECKey _key;
     protected SignedJWT _jwt;
     protected String _serialization;
-    protected static final ObjectMapper _mapper = SdkUtils.createMapper();
 
     /**
      * Creates a new AbstractBlock, can only be called by derived class.
      *
      * @param key           The key to sign this block - must include the private key material.
-     * @param claimsBuilder Represents the claims to be embedded within this AbstractBlock.
+     * @param claimsBuilder Represents the JWT `claims to be embedded within this AbstractBlock.
      * @throws Exception On failure.
      */
     protected AbstractBlock(ECKey key, JWTClaimsSet.Builder claimsBuilder) throws Exception {

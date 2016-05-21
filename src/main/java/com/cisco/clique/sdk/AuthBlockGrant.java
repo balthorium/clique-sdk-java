@@ -10,50 +10,30 @@ import java.net.URI;
 /**
  * Represents grant assertions as contained within authorization chain blocks.
  */
-public class AuthBlockGrant {
+class AuthBlockGrant {
 
+    private static final ObjectMapper _mapper = SdkUtils.createMapper();
     private Type _type;
     private String _privilege;
     private URI _grantee;
     private String _pkt;
-    private static final ObjectMapper _mapper = SdkUtils.createMapper();
-
-    public enum Type {
-
-        /**
-         * A privilege grant that also carries the right to extend the same privilege to other identities.
-         */
-        VIRAL_GRANT,
-
-        /**
-         * A privilege grant.
-         */
-        GRANT,
-
-        /**
-         * A revocation of privilege.
-         */
-        REVOKE
-    }
 
     /**
      * Creates a new grant.
      *
-     * @param ct        The local clique net (for retrieving keys and chains).
      * @param type      The type of grant being asserted.
-     * @param privilege The privilege to which the grant applies.
      * @param grantee   The identity to which the grant is extended.
+     * @param privilege The privilege to which the grant applies.
      * @throws Exception On failure.
      */
-    public AuthBlockGrant(Transport ct, Type type, String privilege, URI grantee) throws Exception {
-        if (null == ct || null == type || null == privilege || null == grantee) {
+    AuthBlockGrant(Type type, URI grantee, String privilege) throws Exception {
+        if (null == type || null == privilege || null == grantee) {
             throw new IllegalArgumentException();
         }
-        IdChain granteeChain = (IdChain) ct.getChain(grantee);
         _type = type;
-        _grantee = granteeChain.getSubject();
+        _grantee = grantee;
         _privilege = privilege;
-        _pkt = granteeChain.getActivePkt();
+        _pkt = ((IdChain) SdkUtils.getPublicRepo().getChain(grantee)).getActivePkt();
     }
 
     /**
@@ -79,7 +59,6 @@ public class AuthBlockGrant {
         grant.put("type", _type.toString());
         grant.put("privilege", _privilege);
         grant.put("grantee", _grantee.toString());
-        grant.put("pkt", _pkt);
         return grant;
     }
 
@@ -88,7 +67,7 @@ public class AuthBlockGrant {
      *
      * @return The type of this grant.
      */
-    public Type getType() {
+    Type getType() {
         return _type;
     }
 
@@ -97,7 +76,7 @@ public class AuthBlockGrant {
      *
      * @return The privilege to which this grant applies.
      */
-    public String getPrivilege() {
+    String getPrivilege() {
         return _privilege;
     }
 
@@ -106,19 +85,15 @@ public class AuthBlockGrant {
      *
      * @return The identity to which this grant is extended.
      */
-    public URI getGrantee() {
+    URI getGrantee() {
         return _grantee;
     }
 
     /**
-     * Return the public key thumbprint of the grantee.
+     * A human readable representation of the grant, useful for logging.
      *
-     * @return The public key thumbprint of the grantee.
+     * @return A string representation of the AuthBlockGrant object's state.
      */
-    public String getPkt() {
-        return _pkt;
-    }
-
     @Override
     public String toString() {
         String retval = null;
@@ -130,6 +105,24 @@ public class AuthBlockGrant {
             e.printStackTrace();
         }
         return retval;
+    }
+
+    enum Type {
+
+        /**
+         * A privilege grant that also carries the right to extend the same privilege to other identities.
+         */
+        VIRAL_GRANT,
+
+        /**
+         * A privilege grant.
+         */
+        GRANT,
+
+        /**
+         * A revocation of privilege.
+         */
+        REVOKE
     }
 }
 

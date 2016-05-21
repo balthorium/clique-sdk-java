@@ -11,7 +11,7 @@ import java.net.URI;
  * included in the JWT payload are: ant, iss, and pkt.  These represent the SHA-256 antecedent hash, the issuer,
  * and a public key thumbprint, respectively.
  */
-public class IdBlock extends AbstractBlock {
+class IdBlock extends AbstractBlock {
 
     /**
      * Creates a new IdBlock.
@@ -78,6 +78,7 @@ public class IdBlock extends AbstractBlock {
      * @throws Exception On failure.
      */
     boolean validateSignature(IdChain.ChainValidationState cvs) throws Exception {
+        PublicRepo repo = SdkUtils.getPublicRepo();
 
         // if this blocks hash matches a trust root hash then no need to validate signature
         if (cvs._trustRoots.contains(getHash())) {
@@ -91,18 +92,18 @@ public class IdBlock extends AbstractBlock {
         if ((null == cvs._antecedentBlock) || !pkt.equals(cvs._antecedentBlock.getPkt())) {
 
             // fetch the IdChain of the genesis-block issuer and see if pkt is their key
-            IdChain issuerChain = (IdChain) cvs._ct.getChain(cvs._issuer);
+            IdChain issuerChain = (IdChain) repo.getChain(cvs._issuer);
             if (!issuerChain.validate(cvs._trustRoots) || !issuerChain.containsPkt(pkt)) {
                 pkt = null;
             }
         }
-        return (null != pkt) && _jwt.verify(new ECDSAVerifier(cvs._ct.getKey(pkt).toECPublicKey()));
+        return (null != pkt) && _jwt.verify(new ECDSAVerifier(repo.getKey(pkt).toECPublicKey()));
     }
 
     /**
      * Builder class for creating new IdBlocks.
      */
-    public static class Builder {
+    static class Builder {
         protected IdChain _chain;
         protected URI _issuer;
         protected URI _subject;
@@ -124,7 +125,7 @@ public class IdBlock extends AbstractBlock {
          * @param issuer The identity to act as issuer (iss) of this block.
          * @return This builder.
          */
-        public Builder setIssuer(URI issuer) {
+        Builder setIssuer(URI issuer) {
             _issuer = issuer;
             return this;
         }
@@ -135,7 +136,7 @@ public class IdBlock extends AbstractBlock {
          * @param issuerKey The URI of the identity that signs this block.
          * @return This builder.
          */
-        public Builder setIssuerKey(ECKey issuerKey) {
+        Builder setIssuerKey(ECKey issuerKey) {
             _issuerKey = issuerKey;
             return this;
         }
@@ -146,7 +147,7 @@ public class IdBlock extends AbstractBlock {
          * @param subject The URI of the identity represented by this block.
          * @return This builder.
          */
-        public Builder setSubject(URI subject) {
+        Builder setSubject(URI subject) {
             _subject = subject;
             return this;
         }
@@ -157,7 +158,7 @@ public class IdBlock extends AbstractBlock {
          * @param subjectPubKey The public key whose thumbprint to assign as pkt claim on this block.
          * @return This builder.
          */
-        public Builder setSubjectPubKey(ECKey subjectPubKey) {
+        Builder setSubjectPubKey(ECKey subjectPubKey) {
             _subjectPubKey = subjectPubKey;
             return this;
         }
@@ -168,7 +169,7 @@ public class IdBlock extends AbstractBlock {
          * @return A new ID block which has already been added to the IdChain provided in the builder constructor.
          * @throws Exception On failure.
          */
-        public IdBlock build() throws Exception {
+        IdBlock build() throws Exception {
             String ant = (_chain._blocks.size() > 0) ? _chain._blocks.get(_chain._blocks.size() - 1).getHash() : null;
 
             if (null == _subject) {

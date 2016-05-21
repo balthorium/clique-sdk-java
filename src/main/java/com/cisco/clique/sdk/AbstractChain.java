@@ -33,7 +33,7 @@ abstract class AbstractChain {
      *
      * @return The number of blocks in the chain.
      */
-    public abstract int size();
+    abstract int size();
 
     /**
      * Returns a human-readable string representing the contents of this chain.  Note, this represents only the payload
@@ -44,28 +44,17 @@ abstract class AbstractChain {
     public String toString() {
         String retval = null;
         try {
+            ArrayNode chain = _mapper.createArrayNode();
+            for (AbstractBlock block : getBlocks()) {
+                chain.add(block.toJson());
+            }
             retval = _mapper
                     .writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(toJsonPayloadOnly());
+                    .writeValueAsString(chain);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return retval;
-    }
-
-    /**
-     * Returns a JSON array with text elements representing the payload of each block.  This should be used only
-     * for producing human-readable representations of the chain (e.g. toString).
-     *
-     * @return A JSON array representing the chain blocks' payloads.
-     * @throws Exception On failure.
-     */
-    private ArrayNode toJsonPayloadOnly() throws Exception {
-        ArrayNode chain = _mapper.createArrayNode();
-        for (AbstractBlock block : getBlocks()) {
-            chain.add(block.toJson());
-        }
-        return chain;
     }
 
     /**
@@ -88,7 +77,7 @@ abstract class AbstractChain {
      * @return Text representing the full serialization of this chain.
      * @throws Exception On failure.
      */
-    public String serialize() throws Exception {
+    String serialize() throws Exception {
         return _mapper
                 .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(toJson());
@@ -100,7 +89,7 @@ abstract class AbstractChain {
      * @return The issuer of this chain.
      * @throws Exception On failure.
      */
-    public URI getIssuer() throws Exception {
+    URI getIssuer() throws Exception {
         AbstractBlock block = getBlock(0);
         if (null != block) {
             return block.getIssuer();
@@ -114,7 +103,7 @@ abstract class AbstractChain {
      * @return The subject of this chain.
      * @throws Exception On failure.
      */
-    public URI getSubject() throws Exception {
+    URI getSubject() throws Exception {
         AbstractBlock block = getBlock(0);
         if (null != block) {
             return block.getSubject();
@@ -128,7 +117,7 @@ abstract class AbstractChain {
      * @return The hash of this chains initial block.
      * @throws Exception On failure.
      */
-    public String getGenesisHash() throws Exception {
+    String getGenesisHash() throws Exception {
         return getBlock(0).getHash();
     }
 }

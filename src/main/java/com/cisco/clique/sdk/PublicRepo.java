@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.AbstractChain;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
@@ -10,7 +9,7 @@ import java.net.URI;
  * methods for getting and setting keys, as well as for getting and setting chains.  The implementing class is
  * responsible for managing local cache and for handling cache-misses.
  */
-public interface Transport {
+public interface PublicRepo {
 
     /**
      * Put a given key to the Clique transport.

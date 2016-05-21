@@ -7,6 +7,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 import java.text.SimpleDateFormat;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -15,6 +16,8 @@ import java.util.TimeZone;
 class SdkUtils {
 
     private static final SimpleModule _dateModule;
+    private static PublicRepo _publicRepo;
+    private static Set<String> _trustRoots;
 
     static {
         Security.addProvider(new BouncyCastleProvider());
@@ -37,6 +40,22 @@ class SdkUtils {
         ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
         mapper.registerModule(_dateModule);
         return mapper;
+    }
+
+    static PublicRepo getPublicRepo() {
+        return _publicRepo;
+    }
+
+    public static void setPublicRepo(PublicRepo publicRepo) {
+        _publicRepo = publicRepo;
+    }
+
+    static Set<String> getTrustRoots() {
+        return _trustRoots;
+    }
+
+    public static void setTrustRoots(Set<String> trustRoots) {
+        _trustRoots = trustRoots;
     }
 }
 

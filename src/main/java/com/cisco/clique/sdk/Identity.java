@@ -1,7 +1,6 @@
 package com.cisco.clique.sdk;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -13,59 +12,57 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Represents an identity, including the identity's unique URI, and a collection of it's key pairs.
  */
-public class Identity {
+public class Identity extends PublicIdentity {
 
-    private URI _acct;
-    private Set<String> _trustRoots;
-    private Map<String, ECKey> _keyChain;
-    private Transport _ct;
-    private static final ObjectMapper _mapper = SdkUtils.createMapper();
+    private Map<String, ECKey> _keyPairs;
 
     /**
      * Creates a new identity and initializes it with a new key pair.
      *
-     * @param ct   The local clique net.
      * @param acct The unique URI to associate with the identity.
      * @throws Exception On failure.
      */
-    public Identity(Transport ct, URI acct) throws Exception {
-        if (null == ct || null == acct) {
-            throw new IllegalArgumentException();
-        }
-        _ct = ct;
-        _acct = acct;
-        _trustRoots = new HashSet<>();
-        _keyChain = new HashMap<>();
-        newKey();
+    public Identity(URI acct) throws Exception {
+        super(acct);
+        _keyPairs = new HashMap<>();
+        rotateKeyPair();
     }
 
     /**
      * Instantiates a new Identity object based on identity information provided in a parsed JSON document.
      *
-     * @param ct   The local clique net.
      * @param node The parsed JSON document from which to extract identity information.
      * @throws Exception On failure.
      */
-    public Identity(Transport ct, JsonNode node) throws Exception {
-        if (null == ct || null == node) {
+    public Identity(JsonNode node) throws Exception {
+        if (null == node) {
             throw new IllegalArgumentException();
         }
-        _ct = ct;
         _acct = URI.create(node.findPath("acct").asText());
-        _keyChain = new HashMap<>();
+        _keyPairs = new HashMap<>();
         JsonNode keys = node.findPath("keys");
         if (null != keys && keys instanceof ArrayNode) {
             for (JsonNode jwk : keys) {
-                addKey((ECKey) JWK.parse(_mapper.writeValueAsString(jwk)));
+                ECKey key = (ECKey) JWK.parse(_mapper.writeValueAsString(jwk));
+                storeKeyPair(key);
+                SdkUtils.getPublicRepo().putKey(key.toPublicJWK());
             }
         }
+    }
+
+    public PolicyBuilder createPolicy(URI resourceUri) throws Exception {
+        return new PolicyBuilder(new AuthChain(), resourceUri);
+    }
+
+    public PolicyBuilder updatePolicy(URI resourceUri) throws Exception {
+        AuthChain authChain = (AuthChain) SdkUtils.getPublicRepo().getChain(resourceUri);
+        return new PolicyBuilder(authChain);
     }
 
     /**
@@ -78,24 +75,23 @@ public class Identity {
         ObjectNode identity = _mapper.createObjectNode();
         identity.put("acct", _acct.toString());
         ArrayNode keys = identity.putArray("keys");
-        for (ECKey key : _keyChain.values()) {
+        for (ECKey key : _keyPairs.values()) {
             keys.add(_mapper.readTree(key.toJSONString()));
         }
         return identity;
     }
 
     /**
-     * Adds the given key to this identity's keychain.  Also interns the public key to the clique net.
+     * Adds the given key pair to this identity's keychain.  Also interns the public key to the transport.
      *
      * @param key The key to be added to this identity's keychain.
      * @throws Exception On failure.
      */
-    void addKey(ECKey key) throws Exception {
+    void storeKeyPair(ECKey key) throws Exception {
         if (null == key) {
             throw new IllegalArgumentException();
         }
-        _keyChain.put(key.toPublicJWK().computeThumbprint().toString(), key);
-        _ct.putKey(key.toPublicJWK());
+        _keyPairs.put(key.toPublicJWK().computeThumbprint().toString(), key);
     }
 
     /**
@@ -103,7 +99,9 @@ public class Identity {
      *
      * @throws Exception On failure.
      */
-    public void newKey() throws Exception {
+    public void rotateKeyPair() throws Exception {
+        PublicRepo publicRepo = SdkUtils.getPublicRepo();
+        Set<String> trustRoots = SdkUtils.getTrustRoots();
 
         // generate a new key pair
         ECKey.Curve crv = ECKey.Curve.P_256;
@@ -114,46 +112,37 @@ public class Identity {
                 .privateKey((ECPrivateKey) pair.getPrivate())
                 .build();
 
-        // add key pair to local key chain
-        addKey(key);
+        // store key pair to local key chain
+        storeKeyPair(key);
+
+        // publish public key to repo
+        SdkUtils.getPublicRepo().putKey(key.toPublicJWK());
 
         // append a new block to this identity's IdChain
-        IdChain idChain = (IdChain) _ct.getChain(_acct);
+        IdChain idChain = (IdChain) publicRepo.getChain(_acct);
         if (null != idChain) {
 
             // append to existing IdChain
             idChain.newBlockBuilder()
                     .setIssuer(_acct)
-                    .setIssuerKey(getActiveKey())
+                    .setIssuerKey(getActiveKeyPair())
                     .setSubject(_acct)
                     .setSubjectPubKey(key.toPublicJWK())
                     .build();
-        }
-        else {
+        } else {
+
             // create a new self-asserted IdChain
-            idChain = new IdChain(_ct);
+            idChain = new IdChain();
             idChain.newBlockBuilder()
                     .setIssuer(_acct)
                     .setIssuerKey(key)
                     .setSubject(_acct)
                     .setSubjectPubKey(key.toPublicJWK())
                     .build();
-
-            // implicitly trust locally created IdChain
-            _trustRoots.add(idChain.getGenesisHash());
         }
 
         // publish the new version of this identity's IdChain
-        _ct.putChain(idChain);
-    }
-
-    /**
-     * Returns the unique URI of this identity.
-     *
-     * @return The unique URI of this identity.
-     */
-    public URI getAcct() {
-        return _acct;
+        publicRepo.putChain(idChain);
     }
 
     /**
@@ -162,11 +151,11 @@ public class Identity {
      * @param pkt The public key thumbprint being requested.
      * @return The full public/private key pair matching the given pkt.
      */
-    public ECKey getKey(String pkt) {
+    public ECKey getKeyPair(String pkt) {
         if (null == pkt) {
             throw new IllegalArgumentException();
         }
-        return _keyChain.get(pkt);
+        return _keyPairs.get(pkt);
     }
 
     /**
@@ -176,22 +165,13 @@ public class Identity {
      * @return This identity's currently active key pair.
      * @throws Exception On failure.
      */
-    public ECKey getActiveKey() throws Exception {
+    public ECKey getActiveKeyPair() throws Exception {
         ECKey retval = null;
-        IdChain chain = (IdChain) _ct.getChain(_acct);
+        IdChain chain = (IdChain) SdkUtils.getPublicRepo().getChain(_acct);
         if (null != chain) {
-            retval = getKey(chain.getActivePkt());
+            retval = getKeyPair(chain.getActivePkt());
         }
         return retval;
-    }
-
-    /**
-     * Returns a set of IdBlock hashes that are trusted implicitly by this identity.
-     *
-     * @return A set of hashes of IdBlocks which constitute trust roots.
-     */
-    public Set<String> getTrustRoots() {
-        return _trustRoots;
     }
 
     @Override
@@ -205,5 +185,42 @@ public class Identity {
             e.printStackTrace();
         }
         return retval;
+    }
+
+    public class PolicyBuilder {
+        private AuthChain _authChain;
+        private AuthBlock.Builder _blockBuilder;
+
+        PolicyBuilder(AuthChain authChain, URI resourceUri) throws Exception {
+            this(authChain);
+            _blockBuilder.setSubject(resourceUri);
+        }
+
+        PolicyBuilder(AuthChain authChain) throws Exception {
+            _authChain = authChain;
+            _blockBuilder = authChain.newBlockBuilder()
+                    .setIssuer(_acct)
+                    .setIssuerKey(Identity.this.getActiveKeyPair());
+        }
+
+        public PolicyBuilder viralGrant(PublicIdentity grantee, String privilege) throws Exception {
+            _blockBuilder.addGrant(new AuthBlockGrant(AuthBlockGrant.Type.VIRAL_GRANT, grantee.getAcct(), privilege));
+            return this;
+        }
+
+        public PolicyBuilder grant(PublicIdentity grantee, String privilege) throws Exception {
+            _blockBuilder.addGrant(new AuthBlockGrant(AuthBlockGrant.Type.GRANT, grantee.getAcct(), privilege));
+            return this;
+        }
+
+        public PolicyBuilder revoke(PublicIdentity grantee, String privilege) throws Exception {
+            _blockBuilder.addGrant(new AuthBlockGrant(AuthBlockGrant.Type.REVOKE, grantee.getAcct(), privilege));
+            return this;
+        }
+
+        public void build() throws Exception {
+            _blockBuilder.build();
+            SdkUtils.getPublicRepo().putChain(_authChain);
+        }
     }
 }
