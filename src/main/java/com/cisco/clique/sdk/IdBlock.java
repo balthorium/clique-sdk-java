@@ -81,26 +81,28 @@ class IdBlock extends AbstractBlock {
     boolean validateSignature(IdChain.ChainValidationState cvs) throws Exception {
         Transport transport = SdkUtils.getTransport();
 
-        // if this blocks hash matches a trust root hash then no need to validate signature
-        if (cvs._trustRoots.contains(getHash())) {
+        boolean isTrustRoot = cvs._trustRoots.contains(getHash());
+        boolean isGenesisBlock = null == cvs._antecedentBlock;
+        boolean isSelfAsserted = cvs._issuer.equals(cvs._subject);
+
+        if (isTrustRoot) {
             return true;
+        } else if (isGenesisBlock && isSelfAsserted) {
+            return false;
         }
 
-        // pull the verification public key signature out of the block's kid header attribute
         String pkt = _jwt.getHeader().getKeyID();
 
-        // if this is the genesis block, or the block is not signed by antecedent public key
-        if ((null == cvs._antecedentBlock) || !pkt.equals(cvs._antecedentBlock.getPkt())) {
-
-            // fetch the IdChain of the genesis-block issuer and see if pkt is their key
+        if (!isSelfAsserted) {
             IdChain issuerChain = (IdChain) transport.getChain(cvs._issuer);
-            if (cvs._issuer.equals(cvs._subject)
-                    || !issuerChain.validate(cvs._trustRoots)
-                    || !issuerChain.containsPkt(pkt)) {
-                pkt = null;
+            if (!issuerChain.validate(cvs._trustRoots) || !issuerChain.containsPkt(pkt)) {
+                return false;
             }
+        } else if (!cvs._antecedentBlock.getPkt().equals(pkt)) {
+            return false;
         }
-        return (null != pkt) && _jwt.verify(new ECDSAVerifier(transport.getKey(pkt).toECPublicKey()));
+
+        return _jwt.verify(new ECDSAVerifier(transport.getKey(pkt).toECPublicKey()));
     }
 
     /**
