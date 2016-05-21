@@ -26,3 +26,9 @@ compileJava {
 test {
     useTestNG()
 }
+
+task publicJavadoc(type: Javadoc) {
+    source = sourceSets.main.allJava
+    options.memberLevel = JavadocMemberLevel.PUBLIC
+    classpath = configurations.compile
+}

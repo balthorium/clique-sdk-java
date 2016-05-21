@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Base class for both identity and authorization chain classes.
  */
-abstract public class AbstractChain {
+abstract class AbstractChain {
 
     protected static final ObjectMapper _mapper = SdkUtils.createMapper();
 
