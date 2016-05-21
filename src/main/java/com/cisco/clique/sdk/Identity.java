@@ -228,7 +228,7 @@ public class Identity extends PublicIdentity {
             return this;
         }
 
-        public void build() throws Exception {
+        public void commit() throws Exception {
             _blockBuilder.build();
             SdkUtils.getTransport().putChain(_authChain);
         }
