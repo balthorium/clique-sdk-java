@@ -1,71 +1,122 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.exceptions.UntrustedIdentityException;
+import com.nimbusds.jose.jwk.ECKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.Assert;
-import org.testng.annotations.*;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.security.Security;
-import java.util.HashSet;
 
 public class IdentityTest {
+    URI _mintUri;
+    URI _aliceUri;
 
-    @BeforeClass
-    public void setUp() {
+    @BeforeTest
+    public void suiteSetUp() {
         Security.addProvider(new BouncyCastleProvider());
-        SdkUtils.setTransport(new LocalTransport());
-        SdkUtils.setTrustRoots(new HashSet<String>() {{ add("hashyMcHashface"); }});
+        _mintUri = URI.create("uri:clique:mint");
+        _aliceUri = URI.create("uri:clique:alice");
+    }
+
+    @BeforeMethod
+    public void testSetUp() {
+        SdkUtils.setTransport(new CacheTransport());
+        SdkUtils.getTrustRoots().clear();
     }
 
     @Test
-    public void selfAssertedIdentityTest() throws Exception {
-
-        // create and test self-asserted identity
-//        Identity alice = new Identity(_ct, aliceUri);
-//        Assert.assertEquals(alice.getAcct(), aliceUri);
-//        ECKey activeKey = alice.getActiveKeyPair();
-//        Assert.assertNotNull(activeKey);
-//        String activePkt = activeKey.computeThumbprint().toString();
-//        alice.getKeyPair(activePkt);
-//
-//        // check the automatically generated idchain
-//        IdChain aliceChain = (IdChain) _ct.getChain(aliceUri);
-//        Assert.assertNotNull(aliceChain);
-//        Assert.assertEquals(aliceChain.getIssuer(), aliceUri);
-//        Assert.assertEquals(aliceChain.getSubject(), aliceUri);
-//        Assert.assertEquals(aliceChain.size(), 1);
-//        Assert.assertEquals(aliceChain.getActivePkt(), activePkt);
-//        Assert.assertEquals(aliceChain.getGenesisHash(), aliceChain.getBlock(0).getHash());
-//        Assert.assertNotNull(aliceChain.toString());
-//        Assert.assertTrue(aliceChain.validate(alice.getTrustRoots()));
+    public void newSelfAssertingIdentityTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        Assert.assertEquals(mint.getAcct(), _mintUri);
     }
 
+    @Test
+    public void newMintAssertedIdentityTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        Identity alice = new Identity(mint, _aliceUri);
+        Assert.assertEquals(alice.getAcct(), _aliceUri);
+    }
 
     @Test
-    public void newIdentityText() throws Exception {
+    public void getKeyPairTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        Identity alice = new Identity(mint, _aliceUri);
+        ECKey key1 = alice.getActiveKeyPair();
+        Assert.assertNotNull(key1);
+        String pkt1 = key1.computeThumbprint().toString();
+        ECKey key2 = alice.getKeyPair(pkt1);
+        Assert.assertNotNull(key2);
+        Assert.assertEquals(key2, key1);
+    }
 
-        URI meUri = URI.create("uri:clique:alice");
-        URI youUri = URI.create("uri:clique:bob");
-        URI resourceUri = URI.create("uri:some:protected:resource");
-        String readPrivilege = "read";
-        String writePrivilege = "write";
+    @Test
+    public void rotateKeyPairTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        Identity alice = new Identity(mint, _aliceUri);
+        ECKey oldKey = alice.getActiveKeyPair();
+        Assert.assertNotNull(oldKey);
+        ECKey newKey = alice.rotateKeyPair();
+        Assert.assertNotNull(newKey);
+        ECKey key = alice.getActiveKeyPair();
+        Assert.assertNotNull(key);
+        Assert.assertEquals(key, newKey);
+        Assert.assertNotEquals(key, oldKey);
+    }
 
-        Identity me = new Identity(meUri);
-        new Identity(youUri);
-        PublicIdentity you = new PublicIdentity(youUri);
+    @Test
+    public void blockDuplicateIdentitiesOnOneTransportTest() throws Exception {
+        new Identity(_mintUri);
+        Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
+        SdkUtils.setTransport(new CacheTransport());
+        new Identity(_mintUri);
+        Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
+    }
 
-        me.createPolicy(resourceUri)
-                .viralGrant(me, readPrivilege)
-                .viralGrant(you, writePrivilege)
-                .build();
+    @Test
+    public void newPublicIdentityGetAcctTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        Identity alice = new Identity(mint, _aliceUri);
 
-        me.updatePolicy(resourceUri)
-                .grant(you, readPrivilege)
-                .build();
+        PublicIdentity alicePublic = new PublicIdentity(_aliceUri);
+        Assert.assertNotNull(alicePublic);
+        Assert.assertEquals(alicePublic.getAcct(), alice.getAcct());
+    }
 
-        Assert.assertTrue(me.hasPrivilege(resourceUri, readPrivilege));
-        Assert.assertFalse(me.hasPrivilege(resourceUri, writePrivilege));
-        Assert.assertTrue(you.hasPrivilege(resourceUri, readPrivilege));
-        Assert.assertTrue(you.hasPrivilege(resourceUri, writePrivilege));
+    @Test
+    public void newUntrustedPublicIdentityTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        new Identity(mint, _aliceUri);
+        SdkUtils.getTrustRoots().clear();
+        Assert.assertThrows(UntrustedIdentityException.class, () -> new PublicIdentity(_aliceUri));
+    }
+
+    @Test
+    public void publicIdentityGetPublicKeyTest() throws Exception {
+        Identity mint = new Identity(_mintUri);
+        Identity alice = new Identity(mint, _aliceUri);
+
+        ECKey key1 = alice.getActiveKeyPair();
+        Assert.assertNotNull(key1);
+        Assert.assertTrue(key1.isPrivate());
+        Assert.assertNotNull(key1.getD());
+
+        PublicIdentity alicePublic = new PublicIdentity(_aliceUri);
+        Assert.assertNotNull(alicePublic);
+
+        ECKey pubkey1 = alicePublic.getActivePublicKey();
+        Assert.assertNotNull(pubkey1);
+        Assert.assertFalse(pubkey1.isPrivate());
+        Assert.assertNull(pubkey1.getD());
+        Assert.assertEquals(pubkey1.computeThumbprint(), key1.computeThumbprint());
+
+        ECKey pubkey2 = alicePublic.getPublicKey(key1.computeThumbprint().toString());
+        Assert.assertNotNull(pubkey2);
+        Assert.assertFalse(pubkey2.isPrivate());
+        Assert.assertNull(pubkey2.getD());
+        Assert.assertEquals(pubkey2.computeThumbprint(), key1.computeThumbprint());
     }
 }

@@ -7,6 +7,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -21,6 +22,8 @@ class SdkUtils {
 
     static {
         Security.addProvider(new BouncyCastleProvider());
+        _transport = new CacheTransport();
+        _trustRoots = new HashSet<>();
 
         /**
          * We want all object mappers to serialize date fields as UTC and in RFC-3339 iso-date-time format.
@@ -52,10 +55,6 @@ class SdkUtils {
 
     static Set<String> getTrustRoots() {
         return _trustRoots;
-    }
-
-    public static void setTrustRoots(Set<String> trustRoots) {
-        _trustRoots = trustRoots;
     }
 }
 

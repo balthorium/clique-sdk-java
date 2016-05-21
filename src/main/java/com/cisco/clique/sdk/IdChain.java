@@ -136,6 +136,7 @@ class IdChain extends AbstractChain {
         Set<String> _trustRoots;
         IdBlock _antecedentBlock;
         URI _issuer;
+        URI _subject;
 
         ChainValidationState(Set<String> trustRoots) {
             _trustRoots = trustRoots;

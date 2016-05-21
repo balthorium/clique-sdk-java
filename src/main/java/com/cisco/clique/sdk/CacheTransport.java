@@ -13,13 +13,13 @@ import java.util.Map;
  * cache of public keys and chains.  This is an in-memory transport and does not interact with any other services or
  * peers over the network.  This is mainly used for simple demonstrations and testing.
  */
-public class LocalTransport implements Transport {
+public class CacheTransport implements Transport {
 
     Map<String, ECKey> _keys;
     Map<URI, AbstractChain> _chains;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
-    public LocalTransport() {
+    public CacheTransport() {
         _keys = new HashMap<>();
         _chains = new HashMap<>();
     }

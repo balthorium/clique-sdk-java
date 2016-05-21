@@ -61,9 +61,10 @@ class IdBlock extends AbstractBlock {
     boolean validateAntecedent(IdChain.ChainValidationState cvs) throws Exception {
         Object ant = _jwt.getJWTClaimsSet().getClaim("ant");
 
-        // if this is the antecedent block then no validation required, just set the chain issuer on cvs
+        // if this is the genesis block then no antecedent validation required, just set the chain issuer on cvs
         if (null == ant && null == cvs._antecedentBlock) {
             cvs._issuer = URI.create(_jwt.getJWTClaimsSet().getClaim("iss").toString());
+            cvs._subject = URI.create(_jwt.getJWTClaimsSet().getClaim("sub").toString());
             return true;
         }
 
@@ -88,12 +89,14 @@ class IdBlock extends AbstractBlock {
         // pull the verification public key signature out of the block's kid header attribute
         String pkt = _jwt.getHeader().getKeyID();
 
-        // if this is the genesis block, or the block is not signed by antecedent public key...
+        // if this is the genesis block, or the block is not signed by antecedent public key
         if ((null == cvs._antecedentBlock) || !pkt.equals(cvs._antecedentBlock.getPkt())) {
 
             // fetch the IdChain of the genesis-block issuer and see if pkt is their key
             IdChain issuerChain = (IdChain) transport.getChain(cvs._issuer);
-            if (!issuerChain.validate(cvs._trustRoots) || !issuerChain.containsPkt(pkt)) {
+            if (cvs._issuer.equals(cvs._subject)
+                    || !issuerChain.validate(cvs._trustRoots)
+                    || !issuerChain.containsPkt(pkt)) {
                 pkt = null;
             }
         }

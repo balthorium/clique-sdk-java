@@ -117,7 +117,7 @@ abstract class AbstractChain {
      * @return The hash of this chains initial block.
      * @throws Exception On failure.
      */
-    String getGenesisHash() throws Exception {
+    String getHash() throws Exception {
         return getBlock(0).getHash();
     }
 }

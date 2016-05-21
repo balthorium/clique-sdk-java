@@ -114,7 +114,7 @@ class AuthChain extends AbstractChain {
         if (null == genesisBlockHash) {
             throw new IllegalArgumentException();
         }
-        if (getGenesisHash().equals(genesisBlockHash)) {
+        if (getHash().equals(genesisBlockHash)) {
             ChainValidationState cvs = new ChainValidationState();
             for (AuthBlock block : _blocks) {
                 if (!cvs.ratchet(block)) {
