@@ -24,7 +24,7 @@ public class PublicIdentity {
     }
 
     public boolean hasPrivilege(URI resourceUri, String privilege) throws Exception {
-        AuthChain authChain = (AuthChain) SdkUtils.getPublicRepo().getChain(resourceUri);
+        AuthChain authChain = (AuthChain) SdkUtils.getTransport().getChain(resourceUri);
         return authChain.hasPrivilege(_acct, privilege);
     }
 }

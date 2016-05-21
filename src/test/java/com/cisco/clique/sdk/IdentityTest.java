@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.nimbusds.jose.jwk.ECKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.Assert;
 import org.testng.annotations.*;
@@ -8,14 +7,13 @@ import org.testng.annotations.*;
 import java.net.URI;
 import java.security.Security;
 import java.util.HashSet;
-import java.util.Set;
 
 public class IdentityTest {
 
     @BeforeClass
     public void setUp() {
         Security.addProvider(new BouncyCastleProvider());
-        SdkUtils.setPublicRepo(new LocalPublicRepo());
+        SdkUtils.setTransport(new LocalTransport());
         SdkUtils.setTrustRoots(new HashSet<String>() {{ add("hashyMcHashface"); }});
     }
 

@@ -33,7 +33,7 @@ class AuthBlockGrant {
         _type = type;
         _grantee = grantee;
         _privilege = privilege;
-        _pkt = ((IdChain) SdkUtils.getPublicRepo().getChain(grantee)).getActivePkt();
+        _pkt = ((IdChain) SdkUtils.getTransport().getChain(grantee)).getActivePkt();
     }
 
     /**

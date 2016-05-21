@@ -16,7 +16,7 @@ import java.util.TimeZone;
 class SdkUtils {
 
     private static final SimpleModule _dateModule;
-    private static PublicRepo _publicRepo;
+    private static Transport _transport;
     private static Set<String> _trustRoots;
 
     static {
@@ -42,12 +42,12 @@ class SdkUtils {
         return mapper;
     }
 
-    static PublicRepo getPublicRepo() {
-        return _publicRepo;
+    static Transport getTransport() {
+        return _transport;
     }
 
-    public static void setPublicRepo(PublicRepo publicRepo) {
-        _publicRepo = publicRepo;
+    public static void setTransport(Transport transport) {
+        _transport = transport;
     }
 
     static Set<String> getTrustRoots() {

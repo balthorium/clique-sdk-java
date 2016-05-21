@@ -78,7 +78,7 @@ class IdBlock extends AbstractBlock {
      * @throws Exception On failure.
      */
     boolean validateSignature(IdChain.ChainValidationState cvs) throws Exception {
-        PublicRepo repo = SdkUtils.getPublicRepo();
+        Transport transport = SdkUtils.getTransport();
 
         // if this blocks hash matches a trust root hash then no need to validate signature
         if (cvs._trustRoots.contains(getHash())) {
@@ -92,12 +92,12 @@ class IdBlock extends AbstractBlock {
         if ((null == cvs._antecedentBlock) || !pkt.equals(cvs._antecedentBlock.getPkt())) {
 
             // fetch the IdChain of the genesis-block issuer and see if pkt is their key
-            IdChain issuerChain = (IdChain) repo.getChain(cvs._issuer);
+            IdChain issuerChain = (IdChain) transport.getChain(cvs._issuer);
             if (!issuerChain.validate(cvs._trustRoots) || !issuerChain.containsPkt(pkt)) {
                 pkt = null;
             }
         }
-        return (null != pkt) && _jwt.verify(new ECDSAVerifier(repo.getKey(pkt).toECPublicKey()));
+        return (null != pkt) && _jwt.verify(new ECDSAVerifier(transport.getKey(pkt).toECPublicKey()));
     }
 
     /**

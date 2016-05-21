@@ -9,7 +9,7 @@ import java.net.URI;
  * methods for getting and setting keys, as well as for getting and setting chains.  The implementing class is
  * responsible for managing local cache and for handling cache-misses.
  */
-public interface PublicRepo {
+public interface Transport {
 
     /**
      * Put a given key to the Clique transport.

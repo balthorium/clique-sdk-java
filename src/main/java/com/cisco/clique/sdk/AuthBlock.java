@@ -87,12 +87,12 @@ class AuthBlock extends AbstractBlock {
      */
     boolean validateSignature(AuthChain.ChainValidationState cvs) throws Exception {
         boolean retval = false;
-        PublicRepo repo = SdkUtils.getPublicRepo();
+        Transport transport = SdkUtils.getTransport();
         String pkt = _jwt.getHeader().getKeyID();
-        ECKey key = repo.getKey(pkt);
+        ECKey key = transport.getKey(pkt);
         if (_jwt.verify(new ECDSAVerifier(key.toECPublicKey()))) {
             URI issuer = URI.create(_jwt.getJWTClaimsSet().getIssuer());
-            IdChain idChain = (IdChain) repo.getChain(issuer);
+            IdChain idChain = (IdChain) transport.getChain(issuer);
             retval = idChain.containsPkt(pkt);
         }
         return retval;

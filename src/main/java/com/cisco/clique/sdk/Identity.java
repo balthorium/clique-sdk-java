@@ -51,7 +51,7 @@ public class Identity extends PublicIdentity {
             for (JsonNode jwk : keys) {
                 ECKey key = (ECKey) JWK.parse(_mapper.writeValueAsString(jwk));
                 storeKeyPair(key);
-                SdkUtils.getPublicRepo().putKey(key.toPublicJWK());
+                SdkUtils.getTransport().putKey(key.toPublicJWK());
             }
         }
     }
@@ -61,7 +61,7 @@ public class Identity extends PublicIdentity {
     }
 
     public PolicyBuilder updatePolicy(URI resourceUri) throws Exception {
-        AuthChain authChain = (AuthChain) SdkUtils.getPublicRepo().getChain(resourceUri);
+        AuthChain authChain = (AuthChain) SdkUtils.getTransport().getChain(resourceUri);
         return new PolicyBuilder(authChain);
     }
 
@@ -100,7 +100,7 @@ public class Identity extends PublicIdentity {
      * @throws Exception On failure.
      */
     public void rotateKeyPair() throws Exception {
-        PublicRepo publicRepo = SdkUtils.getPublicRepo();
+        Transport transport = SdkUtils.getTransport();
         Set<String> trustRoots = SdkUtils.getTrustRoots();
 
         // generate a new key pair
@@ -115,11 +115,11 @@ public class Identity extends PublicIdentity {
         // store key pair to local key chain
         storeKeyPair(key);
 
-        // publish public key to repo
-        SdkUtils.getPublicRepo().putKey(key.toPublicJWK());
+        // publish public key to transport
+        SdkUtils.getTransport().putKey(key.toPublicJWK());
 
         // append a new block to this identity's IdChain
-        IdChain idChain = (IdChain) publicRepo.getChain(_acct);
+        IdChain idChain = (IdChain) transport.getChain(_acct);
         if (null != idChain) {
 
             // append to existing IdChain
@@ -142,7 +142,7 @@ public class Identity extends PublicIdentity {
         }
 
         // publish the new version of this identity's IdChain
-        publicRepo.putChain(idChain);
+        transport.putChain(idChain);
     }
 
     /**
@@ -167,7 +167,7 @@ public class Identity extends PublicIdentity {
      */
     public ECKey getActiveKeyPair() throws Exception {
         ECKey retval = null;
-        IdChain chain = (IdChain) SdkUtils.getPublicRepo().getChain(_acct);
+        IdChain chain = (IdChain) SdkUtils.getTransport().getChain(_acct);
         if (null != chain) {
             retval = getKeyPair(chain.getActivePkt());
         }
@@ -220,7 +220,7 @@ public class Identity extends PublicIdentity {
 
         public void build() throws Exception {
             _blockBuilder.build();
-            SdkUtils.getPublicRepo().putChain(_authChain);
+            SdkUtils.getTransport().putChain(_authChain);
         }
     }
 }
