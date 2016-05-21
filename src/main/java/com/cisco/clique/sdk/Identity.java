@@ -1,6 +1,7 @@
 package com.cisco.clique.sdk;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -13,25 +14,43 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Represents an identity, including the identity's unique URI, and a collection of it's key pairs.
  */
 public class Identity extends PublicIdentity {
 
+    private Identity _issuer;
     private Map<String, ECKey> _keyPairs;
+    protected static final ObjectMapper _mapper = SdkUtils.createMapper();
+
 
     /**
-     * Creates a new identity and initializes it with a new key pair.
+     * Creates a new self-asserted identity and initializes it with a new key pair.
      *
      * @param acct The unique URI to associate with the identity.
      * @throws Exception On failure.
      */
     public Identity(URI acct) throws Exception {
+        this(null, acct);
+    }
+
+    /**
+     * Creates a new mint-asserted identity and initializes it with a new key pair.
+     *
+     * @param mint The identity of the mint that is asserting this new identity.
+     * @param acct The unique URI to associate with the identity.
+     * @throws Exception On failure.
+     */
+    public Identity(Identity mint, URI acct) throws Exception {
         super(acct);
+        if (null != _idChain) {
+            throw new IllegalArgumentException("an identity chain already exists for the given URI");
+        }
         _keyPairs = new HashMap<>();
+        _issuer = (null != mint) ? mint : this;
         rotateKeyPair();
+        SdkUtils.getTrustRoots().add(_issuer.getHash());
     }
 
     /**
@@ -42,7 +61,7 @@ public class Identity extends PublicIdentity {
      */
     public Identity(JsonNode node) throws Exception {
         if (null == node) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("node must be non-null");
         }
         _acct = URI.create(node.findPath("acct").asText());
         _keyPairs = new HashMap<>();
@@ -56,31 +75,6 @@ public class Identity extends PublicIdentity {
         }
     }
 
-    public PolicyBuilder createPolicy(URI resourceUri) throws Exception {
-        return new PolicyBuilder(new AuthChain(), resourceUri);
-    }
-
-    public PolicyBuilder updatePolicy(URI resourceUri) throws Exception {
-        AuthChain authChain = (AuthChain) SdkUtils.getTransport().getChain(resourceUri);
-        return new PolicyBuilder(authChain);
-    }
-
-    /**
-     * Returns a JSON object representing this identity (including private key material - so be careful).
-     *
-     * @return A JSON object representing this identity.
-     * @throws Exception On failure.
-     */
-    public ObjectNode toJson() throws Exception {
-        ObjectNode identity = _mapper.createObjectNode();
-        identity.put("acct", _acct.toString());
-        ArrayNode keys = identity.putArray("keys");
-        for (ECKey key : _keyPairs.values()) {
-            keys.add(_mapper.readTree(key.toJSONString()));
-        }
-        return identity;
-    }
-
     /**
      * Adds the given key pair to this identity's keychain.  Also interns the public key to the transport.
      *
@@ -89,7 +83,7 @@ public class Identity extends PublicIdentity {
      */
     void storeKeyPair(ECKey key) throws Exception {
         if (null == key) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("key must be non-null");
         }
         _keyPairs.put(key.toPublicJWK().computeThumbprint().toString(), key);
     }
@@ -97,11 +91,11 @@ public class Identity extends PublicIdentity {
     /**
      * Creates a new asymmetric key pair and adds it to this identity's keychain.
      *
+     * @return The new active key resulting from rotation.
      * @throws Exception On failure.
      */
-    public void rotateKeyPair() throws Exception {
+    public ECKey rotateKeyPair() throws Exception {
         Transport transport = SdkUtils.getTransport();
-        Set<String> trustRoots = SdkUtils.getTrustRoots();
 
         // generate a new key pair
         ECKey.Curve crv = ECKey.Curve.P_256;
@@ -119,11 +113,10 @@ public class Identity extends PublicIdentity {
         SdkUtils.getTransport().putKey(key.toPublicJWK());
 
         // append a new block to this identity's IdChain
-        IdChain idChain = (IdChain) transport.getChain(_acct);
-        if (null != idChain) {
+        if (null != _idChain) {
 
             // append to existing IdChain
-            idChain.newBlockBuilder()
+            _idChain.newBlockBuilder()
                     .setIssuer(_acct)
                     .setIssuerKey(getActiveKeyPair())
                     .setSubject(_acct)
@@ -131,18 +124,20 @@ public class Identity extends PublicIdentity {
                     .build();
         } else {
 
-            // create a new self-asserted IdChain
-            idChain = new IdChain();
-            idChain.newBlockBuilder()
-                    .setIssuer(_acct)
-                    .setIssuerKey(key)
+            // create a new IdChain
+            _idChain = new IdChain();
+            _idChain.newBlockBuilder()
+                    .setIssuer(_issuer.getAcct())
+                    .setIssuerKey((this != _issuer) ? _issuer.getActiveKeyPair() : key)
                     .setSubject(_acct)
                     .setSubjectPubKey(key.toPublicJWK())
                     .build();
         }
 
         // publish the new version of this identity's IdChain
-        transport.putChain(idChain);
+        transport.putChain(_idChain);
+
+        return key;
     }
 
     /**
@@ -153,7 +148,7 @@ public class Identity extends PublicIdentity {
      */
     public ECKey getKeyPair(String pkt) {
         if (null == pkt) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("pkt must be non-null");
         }
         return _keyPairs.get(pkt);
     }
@@ -178,13 +173,28 @@ public class Identity extends PublicIdentity {
     public String toString() {
         String retval = null;
         try {
+            ObjectNode identity = _mapper.createObjectNode();
+            identity.put("acct", _acct.toString());
+            ArrayNode keys = identity.putArray("keys");
+            for (ECKey key : _keyPairs.values()) {
+                keys.add(_mapper.readTree(key.toJSONString()));
+            }
             retval = _mapper
                     .writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(toJson());
+                    .writeValueAsString(identity);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return retval;
+    }
+
+    public PolicyBuilder createPolicy(URI resourceUri) throws Exception {
+        return new PolicyBuilder(new AuthChain(), resourceUri);
+    }
+
+    public PolicyBuilder updatePolicy(URI resourceUri) throws Exception {
+        AuthChain authChain = (AuthChain) SdkUtils.getTransport().getChain(resourceUri);
+        return new PolicyBuilder(authChain);
     }
 
     public class PolicyBuilder {
