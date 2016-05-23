@@ -20,7 +20,7 @@ public class IdBlockValidator extends Validator<IdBlock> {
             return;
         }
 
-        // succeed if block's sig. verification key thumbprint matches the thumbprint published in the previous block
+        // succeed if block's signature verification key thumbprint matches thumbprint published in the previous block
         if ((null != _currentBlock) && block.getKid().equals(_currentBlock.getPkt())) {
             return;
         }
@@ -32,6 +32,6 @@ public class IdBlockValidator extends Validator<IdBlock> {
             return;
         }
 
-        throw new InvalidBlockException("block is not a trust root, not signed with previous block's key, and not signed by the genesis block's issuer");
+        throw new InvalidBlockException("identity block is not a trust root and issuer is not trusted");
     }
 }

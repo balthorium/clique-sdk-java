@@ -3,7 +3,7 @@ package com.cisco.clique.sdk.chains;
 import java.net.URI;
 import java.util.ListIterator;
 
-public class AuthChain extends Chain<AuthBlock> {
+public class AuthChain extends AbstractChain<AuthBlock> {
 
     public AuthChain() {
         this(new AuthBlockValidator());

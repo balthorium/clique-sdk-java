@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.chains.Chain;
+import com.cisco.clique.sdk.chains.AbstractChain;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
@@ -35,7 +35,7 @@ public interface Transport {
      * @param chain The chain to be shared.
      * @throws Exception On failure.
      */
-    void putChain(Chain chain) throws Exception;
+    void putChain(AbstractChain chain) throws Exception;
 
     /**
      * Retrieve a chain with the given subject URI.
@@ -44,5 +44,5 @@ public interface Transport {
      * @return The matching chain, or null if not found.
      * @throws Exception On failure.
      */
-    Chain getChain(URI subject) throws Exception;
+    AbstractChain getChain(URI subject) throws Exception;
 }

@@ -6,9 +6,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 
 import java.net.URI;
 
-class IdBlock extends Block {
+public class IdBlock extends AbstractBlock {
 
-    protected IdBlock(URI issuer, ECKey issuerKey, URI subject, ECKey subjectPubKey, String ant) throws Exception {
+    private IdBlock(URI issuer, ECKey issuerKey, URI subject, ECKey subjectPubKey, String ant) throws Exception {
         super(issuerKey, new JWTClaimsSet.Builder()
                 .claim("iss", issuer.toString())
                 .claim("sub", subject.toString())
@@ -16,7 +16,7 @@ class IdBlock extends Block {
                 .claim("ant", ant));
     }
 
-    protected IdBlock(String serialization) throws Exception {
+    IdBlock(String serialization) throws Exception {
         super(serialization);
     }
 
@@ -57,7 +57,7 @@ class IdBlock extends Block {
         }
 
         public IdBlock build() throws Exception {
-            Block lastBlock = _chain.lastBlock();
+            AbstractBlock lastBlock = _chain.lastBlock();
             String ant = (null != lastBlock) ? lastBlock.getHash() : null;
             IdBlock block = new IdBlock(_issuer, _issuerKey, _subject, _subjectPubKey, ant);
             block.serialize();

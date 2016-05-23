@@ -3,9 +3,9 @@ package com.cisco.clique.sdk.chains;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IdChain extends Chain<IdBlock> {
+public class IdChain extends AbstractChain<IdBlock> {
 
-    Set<String> _pkts;
+    private Set<String> _pkts;
 
     public IdChain() {
         this(new IdBlockValidator());

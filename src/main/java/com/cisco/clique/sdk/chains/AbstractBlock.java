@@ -17,14 +17,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.text.ParseException;
 
-public abstract class Block {
+public abstract class AbstractBlock {
 
     protected ECKey _key;
     protected SignedJWT _jwt;
     protected String _serialization;
     protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
-    protected Block(ECKey key, JWTClaimsSet.Builder claimsBuilder) throws Exception {
+    protected AbstractBlock(ECKey key, JWTClaimsSet.Builder claimsBuilder) throws Exception {
         if (null == key || null == claimsBuilder) {
             throw new IllegalArgumentException();
         }
@@ -36,7 +36,7 @@ public abstract class Block {
         _jwt = new SignedJWT(header, claimsBuilder.build());
     }
 
-    protected Block(String serialization) throws Exception {
+    protected AbstractBlock(String serialization) throws Exception {
         if (null == serialization) {
             throw new IllegalArgumentException();
         }

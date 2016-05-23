@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.chains.Chain;
+import com.cisco.clique.sdk.chains.AbstractChain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class TransportLocal implements Transport {
 
     Map<String, ECKey> _keys;
-    Map<URI, Chain> _chains;
+    Map<URI, AbstractChain> _chains;
     private static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     public TransportLocal() {
@@ -36,12 +36,12 @@ public class TransportLocal implements Transport {
     }
 
     @Override
-    public void putChain(Chain chain) throws Exception {
+    public void putChain(AbstractChain chain) throws Exception {
         _chains.put(chain.getSubject(), chain);
     }
 
     @Override
-    public Chain getChain(URI subject) {
+    public AbstractChain getChain(URI subject) {
         return _chains.get(subject);
     }
 
@@ -53,7 +53,7 @@ public class TransportLocal implements Transport {
             for (ECKey key : _keys.values()) {
                 arrayNode.add(_mapper.readTree(key.toPublicJWK().toJSONString()));
             }
-            for (Chain chain : _chains.values()) {
+            for (AbstractChain chain : _chains.values()) {
                 arrayNode.add(_mapper.readTree(chain.toString()));
             }
             retval = _mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arrayNode);

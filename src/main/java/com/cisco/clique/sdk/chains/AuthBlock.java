@@ -10,9 +10,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AuthBlock extends Block {
+public class AuthBlock extends AbstractBlock {
 
-    protected AuthBlock(URI issuer, ECKey issuerKey, URI subject, JSONArray grants, String ant) throws Exception {
+    private AuthBlock(URI issuer, ECKey issuerKey, URI subject, JSONArray grants, String ant) throws Exception {
         super(issuerKey, new JWTClaimsSet.Builder()
                 .claim("iss", issuer.toString())
                 .claim("sub", (null != subject) ? subject.toString() : null)
@@ -20,7 +20,7 @@ public class AuthBlock extends Block {
                 .claim("ant", ant));
     }
 
-    protected AuthBlock(String serialization) throws Exception {
+    AuthBlock(String serialization) throws Exception {
         super(serialization);
     }
 
@@ -66,7 +66,7 @@ public class AuthBlock extends Block {
         }
 
         public AuthBlock build() throws Exception {
-            Block lastBlock = _chain.lastBlock();
+            AbstractBlock lastBlock = _chain.lastBlock();
             String ant = (null != lastBlock) ? lastBlock.getHash() : null;
 
             JSONArray grantArray = new JSONArray();

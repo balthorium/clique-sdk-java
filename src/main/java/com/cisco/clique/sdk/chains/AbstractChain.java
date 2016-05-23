@@ -8,18 +8,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.net.URI;
 import java.util.ArrayList;
 
-public abstract class Chain<T extends Block> {
+public abstract class AbstractChain<T extends AbstractBlock> {
 
     protected Validator<T> _validator;
     protected ArrayList<T> _blocks;
     protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
-    protected Chain(Validator<T> validator) {
+    protected AbstractChain(Validator<T> validator) {
         _validator = validator;
         _blocks = new ArrayList<>();
     }
 
-    protected Chain(Validator<T> validator, String serialization) throws Exception {
+    protected AbstractChain(Validator<T> validator, String serialization) throws Exception {
         this(validator);
         if (null == serialization) {
             throw new IllegalArgumentException();
@@ -37,7 +37,7 @@ public abstract class Chain<T extends Block> {
 
     abstract void addBlock(String serialization) throws Exception;
 
-    public Block lastBlock() {
+    public AbstractBlock lastBlock() {
         return  (!_blocks.isEmpty()) ? _blocks.get(_blocks.size() - 1) : null;
     }
 

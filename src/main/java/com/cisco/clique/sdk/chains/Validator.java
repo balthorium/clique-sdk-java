@@ -6,7 +6,7 @@ import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
 
-abstract public class Validator<T extends Block> {
+abstract public class Validator<T extends AbstractBlock> {
 
     protected T _currentBlock;
     protected URI _chainIssuer;
