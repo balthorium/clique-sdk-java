@@ -47,7 +47,7 @@ public class AuthBlockValidator extends Validator<AuthBlock> {
         Map<String, AuthBlockGrant.Type> creatorGrants = _currentGrants.get(issuer);
         for (AuthBlockGrant grant : block.getGrants()) {
             if (!creatorGrants.get(grant.getPrivilege()).equals(AuthBlockGrant.Type.VIRAL_GRANT)) {
-                throw new InvalidBlockException("block's issuer has insufficient privileges to assert these grants");
+                throw new InvalidBlockException("block issuer has insufficient privileges to assert contained grants");
             }
         }
     }

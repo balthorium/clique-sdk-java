@@ -56,17 +56,17 @@ abstract public class Validator<T extends Block> {
 
         // fail if ant is null but not _currentBlock
         if (null == ant) {
-            throw new InvalidBlockException("block's antecedent claim is null but should not be");
+            throw new InvalidBlockException("block antecedent claim is null but should not be");
         }
 
         // fail if _currentBlock is null but not ant
         if (null == _currentBlock) {
-            throw new InvalidBlockException("block's antecedent claim is not null but should be");
+            throw new InvalidBlockException("block antecedent claim is not null but should be");
         }
 
         // fail if ant and _currentBlock hash don't match
         if (!ant.toString().equals(_currentBlock.getHash())) {
-            throw new InvalidBlockException("block's antecedent claim does not match hash of preceding block");
+            throw new InvalidBlockException("block antecedent claim does not match hash of preceding block");
         }
     }
 
@@ -75,18 +75,18 @@ abstract public class Validator<T extends Block> {
         // get the thumbprint of the block's signature verification key from the JWT "kid" header
         String pkt = block.getKid();
         if (null == pkt) {
-            throw new InvalidBlockException("block's JWT header does not contain a key id (kid)");
+            throw new InvalidBlockException("block JWT header does not contain a key id (kid)");
         }
 
         // fetch the public key corresponding to the thumbprint
         ECKey key = _transport.getKey(pkt);
         if (null == key) {
-            throw new InvalidBlockException("block's signature verification key could not be found");
+            throw new InvalidBlockException("block signature verification key could not be found");
         }
 
         // verify the block signature
         if (!block.verify(key)) {
-            throw new InvalidBlockException("block's signature verification failed");
+            throw new InvalidBlockException("block signature verification failed");
         }
     }
 
@@ -95,7 +95,7 @@ abstract public class Validator<T extends Block> {
         // get the thumbprint of the block's signature verification key from the JWT "kid" header
         String pkt = block.getKid();
         if (null == pkt) {
-            throw new InvalidBlockException("block's JWT header does not contain a key id (kid)");
+            throw new InvalidBlockException("block JWT header does not contain a key id (kid)");
         }
 
         // get the block's issuer claim
@@ -115,7 +115,7 @@ abstract public class Validator<T extends Block> {
 
         // verify the block's signature verification key thumbprint is somewhere in the issuer's identity chain
         if (!issuerChain.containsPkt(pkt)) {
-            throw new InvalidBlockException("block's signature verification key does not belong to named issuer");
+            throw new InvalidBlockException("block signature verification key does not belong to named issuer");
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.InvalidBlockException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -103,13 +104,11 @@ public class PolicyTest {
 
             PublicIdentity dianePublic = new PublicIdentity(_dianeUri);
 
-            _chuck.updatePolicy(_resourceUri)
+            Assert.assertThrows(InvalidBlockException.class, () -> _chuck.updatePolicy(_resourceUri)
                     .grant(dianePublic, _readPrivilege)
-                    .commit();
+                    .commit());
 
-            // Assert.assertFalse(dianePublic.hasPrivilege(_resourceUri, _readPrivilege));
-
-            // TODO: AuthChain validation needs to be updated to make policy trust root logic modular
+            Assert.assertFalse(dianePublic.hasPrivilege(_resourceUri, _readPrivilege));
         }
     }
 }

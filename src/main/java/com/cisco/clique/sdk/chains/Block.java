@@ -15,6 +15,7 @@ import org.apache.commons.codec.binary.Hex;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.text.ParseException;
 
 public abstract class Block {
 
@@ -48,8 +49,8 @@ public abstract class Block {
         return _jwt.getHeader().getKeyID();
     }
 
-    public String getAntecedent() {
-        Object ant = _jwt.getHeader().getCustomParam("ant");
+    public String getAntecedent() throws ParseException {
+        Object ant = _jwt.getJWTClaimsSet().getClaim("ant");
         if (null != ant) {
             return ant.toString();
         }
