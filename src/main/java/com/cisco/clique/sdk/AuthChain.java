@@ -6,19 +6,23 @@ import java.util.ListIterator;
 public class AuthChain extends Chain<AuthBlock> {
 
     public AuthChain() {
-        this(new AuthBlockFactory(), new AuthBlockValidator());
+        this(new AuthBlockValidator());
     }
 
-    public AuthChain(AuthBlockFactory factory, AuthBlockValidator validator) {
-        super(factory, validator);
+    public AuthChain(AuthBlockValidator validator) {
+        super(validator);
     }
 
     public AuthChain(String serialization) throws Exception {
-        this(new AuthBlockFactory(), new AuthBlockValidator(), serialization);
+        this(new AuthBlockValidator(), serialization);
     }
 
-    public AuthChain(AuthBlockFactory factory, AuthBlockValidator validator, String serialization) throws Exception {
-        super(factory, validator, serialization);
+    public AuthChain(AuthBlockValidator validator, String serialization) throws Exception {
+        super(validator, serialization);
+    }
+
+    void addBlock(String serialization) throws Exception {
+        addBlock(new AuthBlock(serialization));
     }
 
     boolean hasPrivilege(URI acct, String privilege) throws Exception {

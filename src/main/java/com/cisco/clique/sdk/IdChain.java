@@ -8,26 +8,30 @@ public class IdChain extends Chain<IdBlock> {
     Set<String> _pkts;
 
     public IdChain() {
-        this(new IdBlockFactory(), new IdBlockValidator());
+        this(new IdBlockValidator());
     }
 
-    public IdChain(IdBlockFactory factory, IdBlockValidator validator) {
-        super(factory, validator);
+    public IdChain(IdBlockValidator validator) {
+        super(validator);
         _pkts = new HashSet<>();
     }
 
     public IdChain(String serialization) throws Exception {
-        this(new IdBlockFactory(), new IdBlockValidator(), serialization);
+        this(new IdBlockValidator(), serialization);
     }
 
-    public IdChain(IdBlockFactory factory, IdBlockValidator validator, String serialization) throws Exception {
-        super(factory, validator, serialization);
+    public IdChain(IdBlockValidator validator, String serialization) throws Exception {
+        super(validator, serialization);
         _pkts = new HashSet<>();
     }
 
     void addBlock(IdBlock block) throws Exception {
         super.addBlock(block);
         _pkts.add(block.getPkt());
+    }
+
+    void addBlock(String serialization) throws Exception {
+        addBlock(new IdBlock(serialization));
     }
 
     boolean containsPkt(String pkt) {

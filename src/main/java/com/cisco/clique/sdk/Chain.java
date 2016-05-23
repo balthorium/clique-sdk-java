@@ -7,21 +7,19 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.net.URI;
 import java.util.ArrayList;
 
-class Chain<T extends Block> {
+abstract class Chain<T extends Block> {
 
     protected Validator<T> _validator;
-    protected BlockFactory<T> _factory;
     protected ArrayList<T> _blocks;
     protected static final ObjectMapper _mapper = SdkUtils.createMapper();
 
-    Chain(BlockFactory<T> factory, Validator<T> validator) {
-        _factory = factory;
+    Chain(Validator<T> validator) {
         _validator = validator;
         _blocks = new ArrayList<>();
     }
 
-    Chain(BlockFactory<T> factory, Validator<T> validator, String serialization) throws Exception {
-        this(factory, validator);
+    Chain(Validator<T> validator, String serialization) throws Exception {
+        this(validator);
         if (null == serialization) {
             throw new IllegalArgumentException();
         }
@@ -36,9 +34,7 @@ class Chain<T extends Block> {
         _blocks.add(block);
     }
 
-    void addBlock(String serialization) throws Exception {
-        addBlock(_factory.newBlock(serialization));
-    }
+    abstract void addBlock(String serialization) throws Exception;
 
     Block lastBlock() {
         if (!_blocks.isEmpty()) {
