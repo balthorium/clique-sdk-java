@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.exceptions.UntrustedIdentityException;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
@@ -20,9 +19,7 @@ public class PublicIdentity {
         _acct = acct;
         _idChain = (IdChain) SdkUtils.getTransport().getChain(_acct);
         if (null != _idChain) {
-            if (!_idChain.validate(SdkUtils.getTrustRoots())) {
-                throw new UntrustedIdentityException("the identity corresponding to the given acct URI is not trusted");
-            }
+            _idChain.validate();
         }
     }
 

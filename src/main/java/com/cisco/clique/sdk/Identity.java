@@ -50,7 +50,6 @@ public class Identity extends PublicIdentity {
         _keyPairs = new HashMap<>();
         _issuer = (null != mint) ? mint : this;
         rotateKeyPair();
-        SdkUtils.getTrustRoots().add(_issuer.getHash());
     }
 
     /**

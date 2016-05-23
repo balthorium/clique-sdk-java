@@ -16,7 +16,7 @@ import java.util.Map;
 public class CacheTransport implements Transport {
 
     Map<String, ECKey> _keys;
-    Map<URI, AbstractChain> _chains;
+    Map<URI, Chain> _chains;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
     public CacheTransport() {
@@ -35,12 +35,12 @@ public class CacheTransport implements Transport {
     }
 
     @Override
-    public void putChain(AbstractChain chain) throws Exception {
+    public void putChain(Chain chain) throws Exception {
         _chains.put(chain.getSubject(), chain);
     }
 
     @Override
-    public AbstractChain getChain(URI subject) {
+    public Chain getChain(URI subject) {
         return _chains.get(subject);
     }
 
@@ -52,7 +52,7 @@ public class CacheTransport implements Transport {
             for (ECKey key : _keys.values()) {
                 arrayNode.add(_mapper.readTree(key.toPublicJWK().toJSONString()));
             }
-            for (AbstractChain chain : _chains.values()) {
+            for (Chain chain : _chains.values()) {
                 arrayNode.add(_mapper.readTree(chain.toString()));
             }
             retval = _mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arrayNode);

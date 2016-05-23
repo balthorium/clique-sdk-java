@@ -34,7 +34,7 @@ public interface Transport {
      * @param chain The chain to be shared.
      * @throws Exception On failure.
      */
-    void putChain(AbstractChain chain) throws Exception;
+    void putChain(Chain chain) throws Exception;
 
     /**
      * Retrieve a chain with the given subject URI.
@@ -43,5 +43,5 @@ public interface Transport {
      * @return The matching chain, or null if not found.
      * @throws Exception On failure.
      */
-    AbstractChain getChain(URI subject) throws Exception;
+    Chain getChain(URI subject) throws Exception;
 }

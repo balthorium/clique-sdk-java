@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.exceptions.UntrustedIdentityException;
 import com.nimbusds.jose.jwk.ECKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.Assert;
@@ -91,7 +90,7 @@ public class IdentityTest {
         Identity mint = new Identity(_mintUri);
         new Identity(mint, _aliceUri);
         SdkUtils.getTrustRoots().clear();
-        Assert.assertThrows(UntrustedIdentityException.class, () -> new PublicIdentity(_aliceUri));
+        Assert.assertThrows(InvalidBlockException.class, () -> new PublicIdentity(_aliceUri));
     }
 
     @Test
