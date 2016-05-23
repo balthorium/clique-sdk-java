@@ -123,20 +123,6 @@ public class AuthBlock extends AbstractBlock {
         }
 
         /**
-         * Produces parsed JSON document from the current state of this grant object.
-         *
-         * @return A parsed JSON document representing this grant.
-         * @throws IOException On error.
-         */
-        public ObjectNode toJson() throws IOException {
-            ObjectNode grant = _mapper.createObjectNode();
-            grant.put("type", _type.toString());
-            grant.put("privilege", _privilege);
-            grant.put("grantee", _grantee.toString());
-            return grant;
-        }
-
-        /**
          * Return the type of this grant.
          *
          * @return The type of this grant.
@@ -172,9 +158,14 @@ public class AuthBlock extends AbstractBlock {
         public String toString() {
             String retval = null;
             try {
+                ObjectNode grant = _mapper.createObjectNode();
+                grant.put("type", _type.toString());
+                grant.put("privilege", _privilege);
+                grant.put("grantee", _grantee.toString());
+
                 retval = _mapper
                         .writerWithDefaultPrettyPrinter()
-                        .writeValueAsString(toJson());
+                        .writeValueAsString(grant);
             } catch (IOException e) {
                 e.printStackTrace();
             }
