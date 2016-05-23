@@ -31,9 +31,9 @@ public class AuthChain extends AbstractChain<AuthBlock> {
         }
         ListIterator<AuthBlock> iterator = _blocks.listIterator(_blocks.size());
         while (iterator.hasPrevious()) {
-            for (AuthBlockGrant authBlockGrant : iterator.previous().getGrants()) {
+            for (AuthBlock.Grant authBlockGrant : iterator.previous().getGrants()) {
                 if (authBlockGrant.getGrantee().equals(acct) && authBlockGrant.getPrivilege().equals(privilege)) {
-                    return !authBlockGrant.getType().equals(AuthBlockGrant.Type.REVOKE);
+                    return !authBlockGrant.getType().equals(AuthBlock.Grant.Type.REVOKE);
                 }
             }
         }

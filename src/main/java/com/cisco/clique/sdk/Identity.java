@@ -1,7 +1,6 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AuthBlock;
-import com.cisco.clique.sdk.chains.AuthBlockGrant;
 import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,9 +23,9 @@ import java.util.Map;
  */
 public class Identity extends PublicIdentity {
 
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
     private Identity _issuer;
     private Map<String, ECKey> _keyPairs;
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
 
     /**
@@ -217,17 +216,17 @@ public class Identity extends PublicIdentity {
         }
 
         public PolicyBuilder viralGrant(PublicIdentity grantee, String privilege) throws Exception {
-            _blockBuilder.addGrant(new AuthBlockGrant(AuthBlockGrant.Type.VIRAL_GRANT, grantee.getAcct(), privilege));
+            _blockBuilder.addGrant(new AuthBlock.Grant(AuthBlock.Grant.Type.VIRAL_GRANT, grantee.getAcct(), privilege));
             return this;
         }
 
         public PolicyBuilder grant(PublicIdentity grantee, String privilege) throws Exception {
-            _blockBuilder.addGrant(new AuthBlockGrant(AuthBlockGrant.Type.GRANT, grantee.getAcct(), privilege));
+            _blockBuilder.addGrant(new AuthBlock.Grant(AuthBlock.Grant.Type.GRANT, grantee.getAcct(), privilege));
             return this;
         }
 
         public PolicyBuilder revoke(PublicIdentity grantee, String privilege) throws Exception {
-            _blockBuilder.addGrant(new AuthBlockGrant(AuthBlockGrant.Type.REVOKE, grantee.getAcct(), privilege));
+            _blockBuilder.addGrant(new AuthBlock.Grant(AuthBlock.Grant.Type.REVOKE, grantee.getAcct(), privilege));
             return this;
         }
 

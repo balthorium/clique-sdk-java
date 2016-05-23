@@ -19,10 +19,10 @@ import java.text.ParseException;
 
 public abstract class AbstractBlock {
 
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
     protected ECKey _key;
     protected SignedJWT _jwt;
     protected String _serialization;
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     protected AbstractBlock(ECKey key, JWTClaimsSet.Builder claimsBuilder) throws Exception {
         if (null == key || null == claimsBuilder) {
@@ -61,8 +61,7 @@ public abstract class AbstractBlock {
         URI retval = null;
         try {
             retval = URI.create(_jwt.getJWTClaimsSet().getIssuer());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // ignore
         }
         return retval;
@@ -72,8 +71,7 @@ public abstract class AbstractBlock {
         URI retval = null;
         try {
             retval = URI.create(_jwt.getJWTClaimsSet().getSubject());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // ignore
         }
         return retval;

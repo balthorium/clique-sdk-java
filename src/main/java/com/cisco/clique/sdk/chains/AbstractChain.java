@@ -10,9 +10,9 @@ import java.util.ArrayList;
 
 public abstract class AbstractChain<T extends AbstractBlock> {
 
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
     protected Validator<T> _validator;
     protected ArrayList<T> _blocks;
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     protected AbstractChain(Validator<T> validator) {
         _validator = validator;
@@ -38,7 +38,7 @@ public abstract class AbstractChain<T extends AbstractBlock> {
     abstract void addBlock(String serialization) throws Exception;
 
     public AbstractBlock lastBlock() {
-        return  (!_blocks.isEmpty()) ? _blocks.get(_blocks.size() - 1) : null;
+        return (!_blocks.isEmpty()) ? _blocks.get(_blocks.size() - 1) : null;
     }
 
     public int size() {

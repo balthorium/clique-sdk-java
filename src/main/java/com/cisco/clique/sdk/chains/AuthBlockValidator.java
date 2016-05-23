@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class AuthBlockValidator extends Validator<AuthBlock> {
 
-    private Map<URI, Map<String, AuthBlockGrant.Type>> _currentGrants;
+    private Map<URI, Map<String, AuthBlock.Grant.Type>> _currentGrants;
 
     public AuthBlockValidator() {
         _currentGrants = new HashMap<>();
@@ -28,7 +28,7 @@ public class AuthBlockValidator extends Validator<AuthBlock> {
         super.doPostValidation(block);
 
         // update the _currentGrants and set new block as _currentBlock
-        for (AuthBlockGrant grant : block.getGrants()) {
+        for (AuthBlock.Grant grant : block.getGrants()) {
             URI grantee = grant.getGrantee();
             _currentGrants.putIfAbsent(grantee, new HashMap<>());
             _currentGrants.get(grantee).put(grant.getPrivilege(), grant.getType());
@@ -44,9 +44,9 @@ public class AuthBlockValidator extends Validator<AuthBlock> {
 
         // validate that the issuer has authority to assert the grants contained within the block
         URI issuer = block.getIssuer();
-        Map<String, AuthBlockGrant.Type> creatorGrants = _currentGrants.get(issuer);
-        for (AuthBlockGrant grant : block.getGrants()) {
-            if (!creatorGrants.get(grant.getPrivilege()).equals(AuthBlockGrant.Type.VIRAL_GRANT)) {
+        Map<String, AuthBlock.Grant.Type> creatorGrants = _currentGrants.get(issuer);
+        for (AuthBlock.Grant grant : block.getGrants()) {
+            if (!creatorGrants.get(grant.getPrivilege()).equals(AuthBlock.Grant.Type.VIRAL_GRANT)) {
                 throw new InvalidBlockException("block issuer has insufficient privileges to assert contained grants");
             }
         }

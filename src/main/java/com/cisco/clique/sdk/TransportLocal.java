@@ -16,9 +16,9 @@ import java.util.Map;
  */
 public class TransportLocal implements Transport {
 
+    private static final ObjectMapper _mapper = SdkCommon.createMapper();
     Map<String, ECKey> _keys;
     Map<URI, AbstractChain> _chains;
-    private static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     public TransportLocal() {
         _keys = new HashMap<>();
@@ -57,8 +57,7 @@ public class TransportLocal implements Transport {
                 arrayNode.add(_mapper.readTree(chain.toString()));
             }
             retval = _mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arrayNode);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return retval;

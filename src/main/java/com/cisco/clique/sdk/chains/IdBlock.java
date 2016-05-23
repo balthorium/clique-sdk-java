@@ -24,7 +24,7 @@ public class IdBlock extends AbstractBlock {
         return _jwt.getJWTClaimsSet().getClaim("pkt").toString();
     }
 
-    static public class Builder {
+    public static class Builder {
         private IdChain _chain;
         private URI _issuer;
         private URI _subject;
