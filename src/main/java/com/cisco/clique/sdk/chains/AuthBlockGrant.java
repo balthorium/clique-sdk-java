@@ -17,7 +17,6 @@ public class AuthBlockGrant {
     private Type _type;
     private String _privilege;
     private URI _grantee;
-    private String _pkt;
 
     public enum Type {
 
@@ -52,7 +51,6 @@ public class AuthBlockGrant {
         _type = type;
         _grantee = grantee;
         _privilege = privilege;
-        _pkt = ((IdChain) SdkCommon.getTransport().getChain(grantee)).getActivePkt();
     }
 
     /**
@@ -64,7 +62,6 @@ public class AuthBlockGrant {
         _type = Type.valueOf(node.findPath("type").asText());
         _privilege = node.findPath("privilege").asText();
         _grantee = URI.create(node.findPath("grantee").asText());
-        _pkt = node.findPath("pkt").asText();
     }
 
     /**
