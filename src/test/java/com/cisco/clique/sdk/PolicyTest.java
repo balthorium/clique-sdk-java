@@ -42,7 +42,7 @@ public class PolicyTest {
 
     @BeforeMethod
     public void testSetUp() throws Exception {
-        SdkCommon.setTransport(new MemoryTransport());
+        SdkCommon.setTransport(new TransportLocal());
         SdkCommon.getTrustRoots().clear();
         Identity mint = new Identity(_mintUri);
         _alice = new Identity(mint, _aliceUri);

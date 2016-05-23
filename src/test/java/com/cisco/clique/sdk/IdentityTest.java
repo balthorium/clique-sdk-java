@@ -24,7 +24,7 @@ public class IdentityTest {
 
     @BeforeMethod
     public void testSetUp() {
-        SdkCommon.setTransport(new MemoryTransport());
+        SdkCommon.setTransport(new TransportLocal());
         SdkCommon.getTrustRoots().clear();
     }
 
@@ -71,7 +71,7 @@ public class IdentityTest {
     public void blockDuplicateIdentitiesOnOneTransportTest() throws Exception {
         new Identity(_mintUri);
         Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
-        SdkCommon.setTransport(new MemoryTransport());
+        SdkCommon.setTransport(new TransportLocal());
         new Identity(_mintUri);
         Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
     }

@@ -22,7 +22,7 @@ public class SdkCommon {
 
     static {
         Security.addProvider(new BouncyCastleProvider());
-        _transport = new MemoryTransport();
+        _transport = new TransportLocal();
         _trustRoots = new HashSet<>();
 
         /**
