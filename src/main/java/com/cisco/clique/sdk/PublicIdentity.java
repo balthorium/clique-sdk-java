@@ -45,8 +45,4 @@ public class PublicIdentity {
         AuthChain authChain = (AuthChain) SdkCommon.getTransport().getChain(resourceUri);
         return authChain.hasPrivilege(_acct, privilege);
     }
-
-    public String getHash() throws Exception {
-        return _idChain.getHash();
-    }
 }
