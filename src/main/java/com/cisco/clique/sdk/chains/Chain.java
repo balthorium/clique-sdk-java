@@ -1,5 +1,6 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.SdkUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -7,18 +8,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.net.URI;
 import java.util.ArrayList;
 
-abstract class Chain<T extends Block> {
+public abstract class Chain<T extends Block> {
 
     protected Validator<T> _validator;
     protected ArrayList<T> _blocks;
     protected static final ObjectMapper _mapper = SdkUtils.createMapper();
 
-    Chain(Validator<T> validator) {
+    protected Chain(Validator<T> validator) {
         _validator = validator;
         _blocks = new ArrayList<>();
     }
 
-    Chain(Validator<T> validator, String serialization) throws Exception {
+    protected Chain(Validator<T> validator, String serialization) throws Exception {
         this(validator);
         if (null == serialization) {
             throw new IllegalArgumentException();
@@ -29,37 +30,34 @@ abstract class Chain<T extends Block> {
         }
     }
 
-    void addBlock(T block) throws Exception {
+    public void addBlock(T block) throws Exception {
         _validator.validate(block);
         _blocks.add(block);
     }
 
     abstract void addBlock(String serialization) throws Exception;
 
-    Block lastBlock() {
-        if (!_blocks.isEmpty()) {
-            return _blocks.get(_blocks.size() - 1);
-        }
-        return null;
+    public Block lastBlock() {
+        return  (!_blocks.isEmpty()) ? _blocks.get(_blocks.size() - 1) : null;
     }
 
-    int size() {
+    public int size() {
         return _blocks.size();
     }
 
-    URI getIssuer() throws Exception {
+    public URI getIssuer() throws Exception {
         return (!_blocks.isEmpty()) ? _blocks.get(0).getIssuer() : null;
     }
 
-    URI getSubject() throws Exception {
+    public URI getSubject() throws Exception {
         return (!_blocks.isEmpty()) ? _blocks.get(0).getSubject() : null;
     }
 
-    String getHash() throws Exception {
+    public String getHash() throws Exception {
         return (!_blocks.isEmpty()) ? _blocks.get(0).getHash() : null;
     }
 
-    String serialize() throws Exception {
+    public String serialize() throws Exception {
         ArrayNode array = _mapper.createArrayNode();
         for (T block : _blocks) {
             array.add(block.serialize());
@@ -69,7 +67,7 @@ abstract class Chain<T extends Block> {
                 .writeValueAsString(array);
     }
 
-    void validate() throws Exception {
+    public void validate() throws Exception {
         _validator.reset();
         for (T block : _blocks) {
             _validator.validate(block);

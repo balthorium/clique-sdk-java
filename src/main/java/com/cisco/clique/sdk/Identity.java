@@ -1,5 +1,9 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.AuthBlock;
+import com.cisco.clique.sdk.chains.AuthBlockGrant;
+import com.cisco.clique.sdk.chains.AuthChain;
+import com.cisco.clique.sdk.chains.IdChain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;

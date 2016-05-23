@@ -1,4 +1,6 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
+
+import com.cisco.clique.sdk.InvalidBlockException;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -6,9 +8,9 @@ import java.util.Map;
 
 public class AuthBlockValidator extends Validator<AuthBlock> {
 
-    Map<URI, Map<String, AuthBlockGrant.Type>> _currentGrants;
+    private Map<URI, Map<String, AuthBlockGrant.Type>> _currentGrants;
 
-    AuthBlockValidator() {
+    public AuthBlockValidator() {
         _currentGrants = new HashMap<>();
     }
 

@@ -1,4 +1,4 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
 import java.net.URI;
 import java.util.ListIterator;
@@ -21,11 +21,11 @@ public class AuthChain extends Chain<AuthBlock> {
         super(validator, serialization);
     }
 
-    void addBlock(String serialization) throws Exception {
+    public void addBlock(String serialization) throws Exception {
         addBlock(new AuthBlock(serialization));
     }
 
-    boolean hasPrivilege(URI acct, String privilege) throws Exception {
+    public boolean hasPrivilege(URI acct, String privilege) throws Exception {
         if (null == acct || null == privilege) {
             throw new IllegalArgumentException();
         }
@@ -40,7 +40,7 @@ public class AuthChain extends Chain<AuthBlock> {
         return false;
     }
 
-    AuthBlock.Builder newBlockBuilder() {
+    public AuthBlock.Builder newBlockBuilder() {
         return new AuthBlock.Builder(this);
     }
 }

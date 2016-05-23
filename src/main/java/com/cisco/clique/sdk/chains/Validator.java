@@ -1,5 +1,8 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.InvalidBlockException;
+import com.cisco.clique.sdk.SdkUtils;
+import com.cisco.clique.sdk.Transport;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;

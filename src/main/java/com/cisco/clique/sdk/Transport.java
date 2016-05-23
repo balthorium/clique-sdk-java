@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.Chain;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;

@@ -1,5 +1,6 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.SdkUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -15,7 +16,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
-class Block {
+public abstract class Block {
 
     protected ECKey _key;
     protected SignedJWT _jwt;
@@ -34,7 +35,7 @@ class Block {
         _jwt = new SignedJWT(header, claimsBuilder.build());
     }
 
-    Block(String serialization) throws Exception {
+    protected Block(String serialization) throws Exception {
         if (null == serialization) {
             throw new IllegalArgumentException();
         }
@@ -43,11 +44,11 @@ class Block {
         _jwt = SignedJWT.parse(_serialization);
     }
 
-    String getKid() {
+    public String getKid() {
         return _jwt.getHeader().getKeyID();
     }
 
-    String getAntecedent() {
+    public String getAntecedent() {
         Object ant = _jwt.getHeader().getCustomParam("ant");
         if (null != ant) {
             return ant.toString();
@@ -55,7 +56,7 @@ class Block {
         return null;
     }
 
-    URI getIssuer() {
+    public URI getIssuer() {
         URI retval = null;
         try {
             retval = URI.create(_jwt.getJWTClaimsSet().getIssuer());
@@ -66,7 +67,7 @@ class Block {
         return retval;
     }
 
-    URI getSubject() {
+    public URI getSubject() {
         URI retval = null;
         try {
             retval = URI.create(_jwt.getJWTClaimsSet().getSubject());
@@ -77,11 +78,11 @@ class Block {
         return retval;
     }
 
-    String getHash() throws Exception {
+    public String getHash() throws Exception {
         return Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest(serialize().getBytes(StandardCharsets.UTF_8)));
     }
 
-    String serialize() throws Exception {
+    public String serialize() throws Exception {
         if (null == _serialization) {
             if (null == _key) {
                 throw new IllegalStateException();
@@ -92,11 +93,11 @@ class Block {
         return _serialization;
     }
 
-    boolean verify(ECKey key) throws Exception {
+    public boolean verify(ECKey key) throws Exception {
         return _jwt.verify(new ECDSAVerifier(key.toECPublicKey()));
     }
 
-    ObjectNode getPayload() throws Exception {
+    public ObjectNode getPayload() throws Exception {
         return (ObjectNode) _mapper.readTree(_jwt.getPayload().toString());
     }
 

@@ -14,7 +14,7 @@ import java.util.TimeZone;
 /**
  * Package utility functions for simple stuff (like creating properly configured ObjectMapper instances).
  */
-class SdkUtils {
+public class SdkUtils {
 
     private static final SimpleModule _dateModule;
     private static Transport _transport;
@@ -22,7 +22,7 @@ class SdkUtils {
 
     static {
         Security.addProvider(new BouncyCastleProvider());
-        _transport = new CacheTransport();
+        _transport = new MemoryTransport();
         _trustRoots = new HashSet<>();
 
         /**
@@ -45,7 +45,7 @@ class SdkUtils {
         return mapper;
     }
 
-    static Transport getTransport() {
+    public static Transport getTransport() {
         return _transport;
     }
 
@@ -53,7 +53,7 @@ class SdkUtils {
         _transport = transport;
     }
 
-    static Set<String> getTrustRoots() {
+    public static Set<String> getTrustRoots() {
         return _trustRoots;
     }
 }

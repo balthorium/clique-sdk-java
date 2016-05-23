@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.Chain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -13,13 +14,13 @@ import java.util.Map;
  * cache of public keys and chains.  This is an in-memory transport and does not interact with any other services or
  * peers over the network.  This is mainly used for simple demonstrations and testing.
  */
-public class CacheTransport implements Transport {
+public class MemoryTransport implements Transport {
 
     Map<String, ECKey> _keys;
     Map<URI, Chain> _chains;
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
 
-    public CacheTransport() {
+    public MemoryTransport() {
         _keys = new HashMap<>();
         _chains = new HashMap<>();
     }

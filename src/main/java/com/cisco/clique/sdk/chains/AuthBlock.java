@@ -1,4 +1,4 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.util.JSONObjectUtils;
@@ -10,9 +10,9 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-class AuthBlock extends Block {
+public class AuthBlock extends Block {
 
-    AuthBlock(URI issuer, ECKey issuerKey, URI subject, JSONArray grants, String ant) throws Exception {
+    protected AuthBlock(URI issuer, ECKey issuerKey, URI subject, JSONArray grants, String ant) throws Exception {
         super(issuerKey, new JWTClaimsSet.Builder()
                 .claim("iss", issuer.toString())
                 .claim("sub", (null != subject) ? subject.toString() : null)
@@ -20,11 +20,11 @@ class AuthBlock extends Block {
                 .claim("ant", ant));
     }
 
-    AuthBlock(String serialization) throws Exception {
+    protected AuthBlock(String serialization) throws Exception {
         super(serialization);
     }
 
-    List<AuthBlockGrant> getGrants() throws Exception {
+    public List<AuthBlockGrant> getGrants() throws Exception {
         List<AuthBlockGrant> grantList = new ArrayList<>();
         JSONArray grantArray = (JSONArray) _jwt.getJWTClaimsSet().getClaim("grants");
         for (Object grant : grantArray) {
@@ -34,37 +34,38 @@ class AuthBlock extends Block {
     }
 
     static public class Builder {
-        protected AuthChain _chain;
-        protected URI _issuer;
-        protected URI _subject;
-        protected ECKey _issuerKey;
-        protected List<AuthBlockGrant> _grants;
+        private AuthChain _chain;
+        private URI _issuer;
+        private URI _subject;
+        private ECKey _issuerKey;
+        private List<AuthBlockGrant> _grants;
 
-        Builder(AuthChain chain) {
+        public Builder(AuthChain chain) {
             _chain = chain;
             _grants = new ArrayList<>();
         }
 
-        Builder setIssuer(URI issuer) {
+        public Builder setIssuer(URI issuer) {
             _issuer = issuer;
             return this;
         }
 
-        Builder setIssuerKey(ECKey issuerKey) {
+        public Builder setIssuerKey(ECKey issuerKey) {
             _issuerKey = issuerKey;
             return this;
         }
 
-        Builder setSubject(URI subject) {
+        public Builder setSubject(URI subject) {
             _subject = subject;
             return this;
         }
-        Builder addGrant(AuthBlockGrant grant) {
+
+        public Builder addGrant(AuthBlockGrant grant) {
             _grants.add(grant);
             return this;
         }
 
-        AuthBlock build() throws Exception {
+        public AuthBlock build() throws Exception {
             Block lastBlock = _chain.lastBlock();
             String ant = (null != lastBlock) ? lastBlock.getHash() : null;
 

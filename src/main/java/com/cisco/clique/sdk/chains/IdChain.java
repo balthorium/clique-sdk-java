@@ -1,4 +1,4 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,27 +25,27 @@ public class IdChain extends Chain<IdBlock> {
         _pkts = new HashSet<>();
     }
 
-    void addBlock(IdBlock block) throws Exception {
+    public void addBlock(IdBlock block) throws Exception {
         super.addBlock(block);
         _pkts.add(block.getPkt());
     }
 
-    void addBlock(String serialization) throws Exception {
+    public void addBlock(String serialization) throws Exception {
         addBlock(new IdBlock(serialization));
     }
 
-    boolean containsPkt(String pkt) {
+    public boolean containsPkt(String pkt) {
         if (null == pkt) {
             throw new IllegalArgumentException();
         }
         return _pkts.contains(pkt);
     }
 
-    String getActivePkt() throws Exception {
+    public String getActivePkt() throws Exception {
         return _blocks.get(_blocks.size() - 1).getPkt();
     }
 
-    IdBlock.Builder newBlockBuilder() {
+    public IdBlock.Builder newBlockBuilder() {
         return new IdBlock.Builder(this);
     }
 }

@@ -1,5 +1,6 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.SdkUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -10,13 +11,31 @@ import java.net.URI;
 /**
  * Represents grant assertions as contained within authorization chain blocks.
  */
-class AuthBlockGrant {
+public class AuthBlockGrant {
 
     private static final ObjectMapper _mapper = SdkUtils.createMapper();
     private Type _type;
     private String _privilege;
     private URI _grantee;
     private String _pkt;
+
+    public enum Type {
+
+        /**
+         * A privilege grant that also carries the right to extend the same privilege to other identities.
+         */
+        VIRAL_GRANT,
+
+        /**
+         * A privilege grant.
+         */
+        GRANT,
+
+        /**
+         * A revocation of privilege.
+         */
+        REVOKE
+    }
 
     /**
      * Creates a new grant.
@@ -26,7 +45,7 @@ class AuthBlockGrant {
      * @param privilege The privilege to which the grant applies.
      * @throws Exception On failure.
      */
-    AuthBlockGrant(Type type, URI grantee, String privilege) throws Exception {
+    public AuthBlockGrant(Type type, URI grantee, String privilege) throws Exception {
         if (null == type || null == privilege || null == grantee) {
             throw new IllegalArgumentException();
         }
@@ -41,7 +60,7 @@ class AuthBlockGrant {
      *
      * @param node The root of the JSON document representing a grant.
      */
-    AuthBlockGrant(JsonNode node) {
+    public AuthBlockGrant(JsonNode node) {
         _type = Type.valueOf(node.findPath("type").asText());
         _privilege = node.findPath("privilege").asText();
         _grantee = URI.create(node.findPath("grantee").asText());
@@ -52,9 +71,9 @@ class AuthBlockGrant {
      * Produces parsed JSON document from the current state of this grant object.
      *
      * @return A parsed JSON document representing this grant.
-     * @throws IOException
+     * @throws IOException On error.
      */
-    ObjectNode toJson() throws IOException {
+    public ObjectNode toJson() throws IOException {
         ObjectNode grant = _mapper.createObjectNode();
         grant.put("type", _type.toString());
         grant.put("privilege", _privilege);
@@ -67,7 +86,7 @@ class AuthBlockGrant {
      *
      * @return The type of this grant.
      */
-    Type getType() {
+    public Type getType() {
         return _type;
     }
 
@@ -76,7 +95,7 @@ class AuthBlockGrant {
      *
      * @return The privilege to which this grant applies.
      */
-    String getPrivilege() {
+    public String getPrivilege() {
         return _privilege;
     }
 
@@ -85,7 +104,7 @@ class AuthBlockGrant {
      *
      * @return The identity to which this grant is extended.
      */
-    URI getGrantee() {
+    public URI getGrantee() {
         return _grantee;
     }
 
@@ -105,24 +124,6 @@ class AuthBlockGrant {
             e.printStackTrace();
         }
         return retval;
-    }
-
-    enum Type {
-
-        /**
-         * A privilege grant that also carries the right to extend the same privilege to other identities.
-         */
-        VIRAL_GRANT,
-
-        /**
-         * A privilege grant.
-         */
-        GRANT,
-
-        /**
-         * A revocation of privilege.
-         */
-        REVOKE
     }
 }
 
