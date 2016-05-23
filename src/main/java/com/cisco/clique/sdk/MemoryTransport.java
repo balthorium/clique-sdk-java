@@ -18,7 +18,7 @@ public class MemoryTransport implements Transport {
 
     Map<String, ECKey> _keys;
     Map<URI, Chain> _chains;
-    private static final ObjectMapper _mapper = SdkUtils.createMapper();
+    private static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     public MemoryTransport() {
         _keys = new HashMap<>();

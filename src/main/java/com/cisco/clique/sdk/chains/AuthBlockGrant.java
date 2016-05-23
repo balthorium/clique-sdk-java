@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.SdkUtils;
+import com.cisco.clique.sdk.SdkCommon;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +13,7 @@ import java.net.URI;
  */
 public class AuthBlockGrant {
 
-    private static final ObjectMapper _mapper = SdkUtils.createMapper();
+    private static final ObjectMapper _mapper = SdkCommon.createMapper();
     private Type _type;
     private String _privilege;
     private URI _grantee;
@@ -52,7 +52,7 @@ public class AuthBlockGrant {
         _type = type;
         _grantee = grantee;
         _privilege = privilege;
-        _pkt = ((IdChain) SdkUtils.getTransport().getChain(grantee)).getActivePkt();
+        _pkt = ((IdChain) SdkCommon.getTransport().getChain(grantee)).getActivePkt();
     }
 
     /**

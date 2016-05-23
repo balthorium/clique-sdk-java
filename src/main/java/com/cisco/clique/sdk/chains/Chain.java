@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.SdkUtils;
+import com.cisco.clique.sdk.SdkCommon;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,7 +12,7 @@ public abstract class Chain<T extends Block> {
 
     protected Validator<T> _validator;
     protected ArrayList<T> _blocks;
-    protected static final ObjectMapper _mapper = SdkUtils.createMapper();
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     protected Chain(Validator<T> validator) {
         _validator = validator;

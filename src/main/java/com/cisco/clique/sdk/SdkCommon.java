@@ -14,7 +14,7 @@ import java.util.TimeZone;
 /**
  * Package utility functions for simple stuff (like creating properly configured ObjectMapper instances).
  */
-public class SdkUtils {
+public class SdkCommon {
 
     private static final SimpleModule _dateModule;
     private static Transport _transport;

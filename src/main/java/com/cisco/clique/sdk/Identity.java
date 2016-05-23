@@ -26,7 +26,7 @@ public class Identity extends PublicIdentity {
 
     private Identity _issuer;
     private Map<String, ECKey> _keyPairs;
-    protected static final ObjectMapper _mapper = SdkUtils.createMapper();
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
 
     /**
@@ -73,7 +73,7 @@ public class Identity extends PublicIdentity {
             for (JsonNode jwk : keys) {
                 ECKey key = (ECKey) JWK.parse(_mapper.writeValueAsString(jwk));
                 storeKeyPair(key);
-                SdkUtils.getTransport().putKey(key.toPublicJWK());
+                SdkCommon.getTransport().putKey(key.toPublicJWK());
             }
         }
     }
@@ -98,7 +98,7 @@ public class Identity extends PublicIdentity {
      * @throws Exception On failure.
      */
     public ECKey rotateKeyPair() throws Exception {
-        Transport transport = SdkUtils.getTransport();
+        Transport transport = SdkCommon.getTransport();
 
         // generate a new key pair
         ECKey.Curve crv = ECKey.Curve.P_256;
@@ -113,7 +113,7 @@ public class Identity extends PublicIdentity {
         storeKeyPair(key);
 
         // publish public key to transport
-        SdkUtils.getTransport().putKey(key.toPublicJWK());
+        SdkCommon.getTransport().putKey(key.toPublicJWK());
 
         // append a new block to this identity's IdChain
         if (null != _idChain) {
@@ -165,7 +165,7 @@ public class Identity extends PublicIdentity {
      */
     public ECKey getActiveKeyPair() throws Exception {
         ECKey retval = null;
-        IdChain chain = (IdChain) SdkUtils.getTransport().getChain(_acct);
+        IdChain chain = (IdChain) SdkCommon.getTransport().getChain(_acct);
         if (null != chain) {
             retval = getKeyPair(chain.getActivePkt());
         }
@@ -196,7 +196,7 @@ public class Identity extends PublicIdentity {
     }
 
     public PolicyBuilder updatePolicy(URI resourceUri) throws Exception {
-        AuthChain authChain = (AuthChain) SdkUtils.getTransport().getChain(resourceUri);
+        AuthChain authChain = (AuthChain) SdkCommon.getTransport().getChain(resourceUri);
         return new PolicyBuilder(authChain);
     }
 
@@ -233,7 +233,7 @@ public class Identity extends PublicIdentity {
 
         public void commit() throws Exception {
             _blockBuilder.build();
-            SdkUtils.getTransport().putChain(_authChain);
+            SdkCommon.getTransport().putChain(_authChain);
         }
     }
 }

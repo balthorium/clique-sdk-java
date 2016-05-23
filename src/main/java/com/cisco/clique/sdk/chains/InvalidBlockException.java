@@ -1,4 +1,4 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
 public class InvalidBlockException extends Exception {
     public InvalidBlockException() {

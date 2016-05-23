@@ -1,7 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.InvalidBlockException;
-import com.cisco.clique.sdk.SdkUtils;
+import com.cisco.clique.sdk.SdkCommon;
 import com.cisco.clique.sdk.Transport;
 import com.nimbusds.jose.jwk.ECKey;
 
@@ -15,7 +14,7 @@ abstract public class Validator<T extends Block> {
     protected Transport _transport;
 
     public Validator() {
-        _transport = SdkUtils.getTransport();
+        _transport = SdkCommon.getTransport();
     }
 
     public void reset() {

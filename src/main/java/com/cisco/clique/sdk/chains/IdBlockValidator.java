@@ -1,7 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.InvalidBlockException;
-import com.cisco.clique.sdk.SdkUtils;
+import com.cisco.clique.sdk.SdkCommon;
 
 import java.net.URI;
 import java.util.Set;
@@ -10,7 +9,7 @@ public class IdBlockValidator extends Validator<IdBlock> {
     Set<String> _trustRoots;
 
     public IdBlockValidator() {
-        _trustRoots = SdkUtils.getTrustRoots();
+        _trustRoots = SdkCommon.getTrustRoots();
     }
 
     @Override

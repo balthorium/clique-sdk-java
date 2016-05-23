@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.SdkUtils;
+import com.cisco.clique.sdk.SdkCommon;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -21,7 +21,7 @@ public abstract class Block {
     protected ECKey _key;
     protected SignedJWT _jwt;
     protected String _serialization;
-    protected static final ObjectMapper _mapper = SdkUtils.createMapper();
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     protected Block(ECKey key, JWTClaimsSet.Builder claimsBuilder) throws Exception {
         if (null == key || null == claimsBuilder) {

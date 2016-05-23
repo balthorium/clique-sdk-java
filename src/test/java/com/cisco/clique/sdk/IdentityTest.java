@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.InvalidBlockException;
 import com.nimbusds.jose.jwk.ECKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.Assert;
@@ -23,8 +24,8 @@ public class IdentityTest {
 
     @BeforeMethod
     public void testSetUp() {
-        SdkUtils.setTransport(new MemoryTransport());
-        SdkUtils.getTrustRoots().clear();
+        SdkCommon.setTransport(new MemoryTransport());
+        SdkCommon.getTrustRoots().clear();
     }
 
     @Test
@@ -70,7 +71,7 @@ public class IdentityTest {
     public void blockDuplicateIdentitiesOnOneTransportTest() throws Exception {
         new Identity(_mintUri);
         Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
-        SdkUtils.setTransport(new MemoryTransport());
+        SdkCommon.setTransport(new MemoryTransport());
         new Identity(_mintUri);
         Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
     }
@@ -89,7 +90,7 @@ public class IdentityTest {
     public void newUntrustedPublicIdentityTest() throws Exception {
         Identity mint = new Identity(_mintUri);
         new Identity(mint, _aliceUri);
-        SdkUtils.getTrustRoots().clear();
+        SdkCommon.getTrustRoots().clear();
         Assert.assertThrows(InvalidBlockException.class, () -> new PublicIdentity(_aliceUri));
     }
 

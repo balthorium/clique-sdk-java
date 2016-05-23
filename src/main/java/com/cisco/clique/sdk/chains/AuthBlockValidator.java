@@ -1,7 +1,5 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.InvalidBlockException;
-
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
