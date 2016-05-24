@@ -68,10 +68,16 @@ public abstract class AbstractChain<T extends AbstractBlock> {
     }
 
     public void validate() throws Exception {
-        _validator.reset();
-        for (T block : _blocks) {
-            _validator.validate(block);
+        if (lastBlock() != _validator.lastValidatedBlock()) {
+            _validator.reset();
+            for (T block : _blocks) {
+                _validator.validate(block);
+            }
         }
+    }
+
+    public void resetValidator() {
+        _validator.reset();
     }
 
     @Override

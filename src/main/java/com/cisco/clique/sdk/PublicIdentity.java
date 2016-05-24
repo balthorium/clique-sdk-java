@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.nimbusds.jose.jwk.ECKey;
 
@@ -8,24 +7,30 @@ import java.net.URI;
 
 public class PublicIdentity {
 
-    protected URI _acct;
+    URI _acct;
     protected IdChain _idChain;
 
-    PublicIdentity() {
+    protected PublicIdentity() {
     }
 
-    public PublicIdentity(URI acct) throws Exception {
+    private PublicIdentity(IdChain chain) throws Exception {
+        _idChain = chain;
+        _acct = _idChain.getSubject();
+    }
+
+    public static PublicIdentity get(URI acct) throws Exception {
         if (null == acct) {
             throw new IllegalArgumentException("the acct URI must be non-null");
         }
-        _acct = acct;
-        _idChain = (IdChain) SdkCommon.getTransport().getChain(_acct);
-        if (null != _idChain) {
-            _idChain.validate();
+        IdChain chain = (IdChain) SdkCommon.getTransport().getChain(acct);
+        if (null != chain) {
+            chain.validate();
+            return new PublicIdentity(chain);
         }
+        return null;
     }
 
-    public URI getAcct() {
+    public URI getAcct() throws Exception {
         return _acct;
     }
 
@@ -41,8 +46,12 @@ public class PublicIdentity {
         return SdkCommon.getTransport().getKey(_idChain.getActivePkt());
     }
 
-    public boolean hasPrivilege(URI resourceUri, String privilege) throws Exception {
-        AuthChain authChain = (AuthChain) SdkCommon.getTransport().getChain(resourceUri);
-        return authChain.hasPrivilege(_acct, privilege);
+    void resetValidator() {
+        _idChain.resetValidator();
+    }
+
+    @Override
+    public String toString() {
+        return _idChain.toString();
     }
 }

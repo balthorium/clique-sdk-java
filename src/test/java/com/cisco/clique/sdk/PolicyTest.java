@@ -10,6 +10,8 @@ import org.testng.annotations.Test;
 import java.net.URI;
 import java.security.Security;
 
+import static org.testng.Assert.*;
+
 public class PolicyTest {
     URI _mintUri;
     URI _aliceUri;
@@ -52,25 +54,24 @@ public class PolicyTest {
         _diane = new Identity(mint, _dianeUri);
     }
 
-
     @Test
     public void newPolicyTest() throws Exception {
 
-        PublicIdentity bobPublic = new PublicIdentity(_bobUri);
+        PublicIdentity bobPublic = PublicIdentity.get(_bobUri);
 
-        _alice.createPolicy(_resourceUri)
+        Policy policy = Policy.create(_alice, _resourceUri)
                 .viralGrant(_alice, _readPrivilege)
                 .grant(bobPublic, _writePrivilege)
                 .commit();
 
-        _alice.updatePolicy(_resourceUri)
+        policy.update(_alice)
                 .grant(bobPublic, _readPrivilege)
                 .commit();
 
-        Assert.assertTrue(_alice.hasPrivilege(_resourceUri, _readPrivilege));
-        Assert.assertFalse(_alice.hasPrivilege(_resourceUri, _writePrivilege));
-        Assert.assertTrue(bobPublic.hasPrivilege(_resourceUri, _readPrivilege));
-        Assert.assertTrue(bobPublic.hasPrivilege(_resourceUri, _writePrivilege));
+        assertTrue(policy.hasPrivilege(_alice, _readPrivilege));
+        assertFalse(policy.hasPrivilege(_alice, _writePrivilege));
+        assertTrue(policy.hasPrivilege(bobPublic, _readPrivilege));
+        assertTrue(policy.hasPrivilege(bobPublic, _writePrivilege));
     }
 
     @Test
@@ -78,9 +79,9 @@ public class PolicyTest {
 
         // alice does this
         {
-            PublicIdentity bobPublic = new PublicIdentity(_bobUri);
+            PublicIdentity bobPublic = PublicIdentity.get(_bobUri);
 
-            _alice.createPolicy(_resourceUri)
+            Policy.create(_alice, _resourceUri)
                     .viralGrant(bobPublic, _readPrivilege)
                     .grant(bobPublic, _writePrivilege)
                     .commit();
@@ -88,27 +89,31 @@ public class PolicyTest {
 
         // bob does this
         {
-            PublicIdentity chuckPublic = new PublicIdentity(_chuckUri);
+            PublicIdentity chuckPublic = PublicIdentity.get(_chuckUri);
 
-            _bob.updatePolicy(_resourceUri)
+            Policy policy = Policy.get(_resourceUri);
+            assertNotNull(policy);
+            policy.update(_bob)
                     .grant(chuckPublic, _readPrivilege)
                     .commit();
 
-            Assert.assertTrue(chuckPublic.hasPrivilege(_resourceUri, _readPrivilege));
+            assertTrue(policy.hasPrivilege(chuckPublic, _readPrivilege));
         }
 
         // chuck does this
         {
-            Assert.assertTrue(_chuck.hasPrivilege(_resourceUri, _readPrivilege));
-            Assert.assertFalse(_chuck.hasPrivilege(_resourceUri, _writePrivilege));
+            Policy policy = Policy.get(_resourceUri);
+            assertNotNull(policy);
+            assertTrue(policy.hasPrivilege(_chuck, _readPrivilege));
+            assertFalse(policy.hasPrivilege(_chuck, _writePrivilege));
 
-            PublicIdentity dianePublic = new PublicIdentity(_dianeUri);
+            PublicIdentity dianePublic = PublicIdentity.get(_dianeUri);
 
-            Assert.assertThrows(InvalidBlockException.class, () -> _chuck.updatePolicy(_resourceUri)
+            assertThrows(InvalidBlockException.class, () -> policy.update(_chuck)
                     .grant(dianePublic, _readPrivilege)
                     .commit());
 
-            Assert.assertFalse(dianePublic.hasPrivilege(_resourceUri, _readPrivilege));
+            assertFalse(policy.hasPrivilege(dianePublic, _readPrivilege));
         }
     }
 }

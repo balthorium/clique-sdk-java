@@ -14,6 +14,7 @@ public class AuthBlockValidator extends Validator<AuthBlock> {
 
     @Override
     public void reset() {
+        super.reset();
         _currentGrants.clear();
     }
 
@@ -27,7 +28,7 @@ public class AuthBlockValidator extends Validator<AuthBlock> {
     protected void doPostValidation(AuthBlock block) throws Exception {
         super.doPostValidation(block);
 
-        // update the _currentGrants and set new block as _currentBlock
+        // update the _currentGrants and set new block as _lastValidated
         for (AuthBlock.Grant grant : block.getGrants()) {
             URI grantee = grant.getGrantee();
             _currentGrants.putIfAbsent(grantee, new HashMap<>());

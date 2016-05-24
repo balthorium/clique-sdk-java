@@ -9,7 +9,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.net.URI;
+import java.security.PublicKey;
 import java.security.Security;
+
+import static org.testng.Assert.*;
 
 public class IdentityTest {
     URI _mintUri;
@@ -31,14 +34,14 @@ public class IdentityTest {
     @Test
     public void newSelfAssertingIdentityTest() throws Exception {
         Identity mint = new Identity(_mintUri);
-        Assert.assertEquals(mint.getAcct(), _mintUri);
+        assertEquals(mint.getAcct(), _mintUri);
     }
 
     @Test
     public void newMintAssertedIdentityTest() throws Exception {
         Identity mint = new Identity(_mintUri);
         Identity alice = new Identity(mint, _aliceUri);
-        Assert.assertEquals(alice.getAcct(), _aliceUri);
+        assertEquals(alice.getAcct(), _aliceUri);
     }
 
     @Test
@@ -46,11 +49,11 @@ public class IdentityTest {
         Identity mint = new Identity(_mintUri);
         Identity alice = new Identity(mint, _aliceUri);
         ECKey key1 = alice.getActiveKeyPair();
-        Assert.assertNotNull(key1);
+        assertNotNull(key1);
         String pkt1 = key1.computeThumbprint().toString();
         ECKey key2 = alice.getKeyPair(pkt1);
-        Assert.assertNotNull(key2);
-        Assert.assertEquals(key2, key1);
+        assertNotNull(key2);
+        assertEquals(key2, key1);
     }
 
     @Test
@@ -58,22 +61,22 @@ public class IdentityTest {
         Identity mint = new Identity(_mintUri);
         Identity alice = new Identity(mint, _aliceUri);
         ECKey oldKey = alice.getActiveKeyPair();
-        Assert.assertNotNull(oldKey);
+        assertNotNull(oldKey);
         ECKey newKey = alice.rotateKeyPair();
-        Assert.assertNotNull(newKey);
+        assertNotNull(newKey);
         ECKey key = alice.getActiveKeyPair();
-        Assert.assertNotNull(key);
-        Assert.assertEquals(key, newKey);
-        Assert.assertNotEquals(key, oldKey);
+        assertNotNull(key);
+        assertEquals(key, newKey);
+        assertNotEquals(key, oldKey);
     }
 
     @Test
     public void blockDuplicateIdentitiesOnOneTransportTest() throws Exception {
         new Identity(_mintUri);
-        Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
+        assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
         SdkCommon.setTransport(new TransportLocal());
         new Identity(_mintUri);
-        Assert.assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
+        assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
     }
 
     @Test
@@ -81,17 +84,41 @@ public class IdentityTest {
         Identity mint = new Identity(_mintUri);
         Identity alice = new Identity(mint, _aliceUri);
 
-        PublicIdentity alicePublic = new PublicIdentity(_aliceUri);
-        Assert.assertNotNull(alicePublic);
-        Assert.assertEquals(alicePublic.getAcct(), alice.getAcct());
+        PublicIdentity alicePublic = PublicIdentity.get(_aliceUri);
+        assertNotNull(alicePublic);
+        assertEquals(alicePublic.getAcct(), alice.getAcct());
     }
 
     @Test
-    public void newUntrustedPublicIdentityTest() throws Exception {
-        Identity mint = new Identity(_mintUri);
-        new Identity(mint, _aliceUri);
+    public void validationStateCachingAndTrustRootTest() throws Exception {
+
+        // create mint as a self-asserted identity and have it issue an identity for alice (cached to transport)
+        new Identity(new Identity(_mintUri), _aliceUri);
+
+        // now clear the trust roots
         SdkCommon.getTrustRoots().clear();
-        Assert.assertThrows(InvalidBlockException.class, () -> new PublicIdentity(_aliceUri));
+
+        // this fetch will still succeed because the cached identity was already validated (incremental validation)
+        PublicIdentity alice = PublicIdentity.get(_aliceUri);
+        assertNotNull(alice);
+
+        // now clear the identity's validation state
+        alice.resetValidator();
+
+        // it's still okay because the mint's identity state is still cached and considered valid
+        alice = PublicIdentity.get(_aliceUri);
+        assertNotNull(alice);
+
+        // now clear both mint and identity's validation states
+        PublicIdentity mint = PublicIdentity.get(_mintUri);
+        assertNotNull(mint);
+        mint.resetValidator();
+        alice = PublicIdentity.get(_aliceUri);
+        assertNotNull(alice);
+        alice.resetValidator();
+
+        // fails to revalidate because validation starts from scratch and mint is no longer a trust root
+        assertThrows(InvalidBlockException.class, () -> PublicIdentity.get(_aliceUri));
     }
 
     @Test
@@ -100,23 +127,23 @@ public class IdentityTest {
         Identity alice = new Identity(mint, _aliceUri);
 
         ECKey key1 = alice.getActiveKeyPair();
-        Assert.assertNotNull(key1);
+        assertNotNull(key1);
         Assert.assertTrue(key1.isPrivate());
-        Assert.assertNotNull(key1.getD());
+        assertNotNull(key1.getD());
 
-        PublicIdentity alicePublic = new PublicIdentity(_aliceUri);
-        Assert.assertNotNull(alicePublic);
+        PublicIdentity alicePublic = PublicIdentity.get(_aliceUri);
+        assertNotNull(alicePublic);
 
         ECKey pubkey1 = alicePublic.getActivePublicKey();
-        Assert.assertNotNull(pubkey1);
-        Assert.assertFalse(pubkey1.isPrivate());
-        Assert.assertNull(pubkey1.getD());
-        Assert.assertEquals(pubkey1.computeThumbprint(), key1.computeThumbprint());
+        assertNotNull(pubkey1);
+        assertFalse(pubkey1.isPrivate());
+        assertNull(pubkey1.getD());
+        assertEquals(pubkey1.computeThumbprint(), key1.computeThumbprint());
 
         ECKey pubkey2 = alicePublic.getPublicKey(key1.computeThumbprint().toString());
-        Assert.assertNotNull(pubkey2);
-        Assert.assertFalse(pubkey2.isPrivate());
-        Assert.assertNull(pubkey2.getD());
-        Assert.assertEquals(pubkey2.computeThumbprint(), key1.computeThumbprint());
+        assertNotNull(pubkey2);
+        assertFalse(pubkey2.isPrivate());
+        assertNull(pubkey2.getD());
+        assertEquals(pubkey2.computeThumbprint(), key1.computeThumbprint());
     }
 }

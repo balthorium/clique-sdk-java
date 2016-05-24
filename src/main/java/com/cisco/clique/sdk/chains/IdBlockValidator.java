@@ -21,13 +21,13 @@ public class IdBlockValidator extends Validator<IdBlock> {
         }
 
         // succeed if block's signature verification key thumbprint matches thumbprint published in the previous block
-        if ((null != _currentBlock) && block.getKid().equals(_currentBlock.getPkt())) {
+        if ((null != _lastValidated) && block.getKid().equals(_lastValidated.getPkt())) {
             return;
         }
 
         // do default issuer validation if block issuer matches issuer of chain's genesis block (but not self-issued)
         URI issuerUri = block.getIssuer();
-        if (((null == _currentBlock) || issuerUri.equals(_chainIssuer)) && !issuerUri.equals(block.getSubject())) {
+        if (((null == _lastValidated) || issuerUri.equals(_chainIssuer)) && !issuerUri.equals(block.getSubject())) {
             super.validateIssuer(block);
             return;
         }

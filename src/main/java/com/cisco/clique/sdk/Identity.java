@@ -1,7 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.chains.AuthBlock;
-import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,9 +21,9 @@ import java.util.Map;
  */
 public class Identity extends PublicIdentity {
 
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
     private Identity _issuer;
     private Map<String, ECKey> _keyPairs;
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
 
     /**
@@ -46,12 +44,13 @@ public class Identity extends PublicIdentity {
      * @throws Exception On failure.
      */
     public Identity(Identity mint, URI acct) throws Exception {
-        super(acct);
+        _idChain = (IdChain) SdkCommon.getTransport().getChain(acct);
         if (null != _idChain) {
             throw new IllegalArgumentException("an identity chain already exists for the given URI");
         }
-        _keyPairs = new HashMap<>();
+        _acct = acct;
         _issuer = (null != mint) ? mint : this;
+        _keyPairs = new HashMap<>();
         rotateKeyPair();
     }
 
@@ -117,20 +116,20 @@ public class Identity extends PublicIdentity {
         // append a new block to this identity's IdChain
         if (null != _idChain) {
 
-            // append to existing IdChain
-            _idChain.newBlockBuilder()
-                    .setIssuer(_acct)
+            // append to exist IdChain (basic rotation)
+            _idChain.newBuilder()
+                    .setIssuer(_idChain.getSubject())
                     .setIssuerKey(getActiveKeyPair())
-                    .setSubject(_acct)
+                    .setSubject(_idChain.getSubject())
                     .setSubjectPubKey(key.toPublicJWK())
                     .build();
         } else {
 
-            // create a new IdChain
+            // create genesis block (new chain)
             _idChain = new IdChain();
-            _idChain.newBlockBuilder()
+            _idChain.newBuilder()
                     .setIssuer(_issuer.getAcct())
-                    .setIssuerKey((this != _issuer) ? _issuer.getActiveKeyPair() : key)
+                    .setIssuerKey(!_acct.equals(_issuer.getAcct()) ? _issuer.getActiveKeyPair() : key)
                     .setSubject(_acct)
                     .setSubjectPubKey(key.toPublicJWK())
                     .build();
@@ -176,10 +175,12 @@ public class Identity extends PublicIdentity {
         String retval = null;
         try {
             ObjectNode identity = _mapper.createObjectNode();
-            identity.put("acct", _acct.toString());
+            identity.set("chain", _mapper.readTree(_idChain.toString()));
             ArrayNode keys = identity.putArray("keys");
             for (ECKey key : _keyPairs.values()) {
-                keys.add(_mapper.readTree(key.toJSONString()));
+                ObjectNode keyNode = (ObjectNode) _mapper.readTree(key.toJSONString());
+                keyNode.put("kid", key.computeThumbprint().toString());
+                keys.add(keyNode);
             }
             retval = _mapper
                     .writerWithDefaultPrettyPrinter()
@@ -188,51 +189,5 @@ public class Identity extends PublicIdentity {
             e.printStackTrace();
         }
         return retval;
-    }
-
-    public PolicyBuilder createPolicy(URI resourceUri) throws Exception {
-        return new PolicyBuilder(new AuthChain(), resourceUri);
-    }
-
-    public PolicyBuilder updatePolicy(URI resourceUri) throws Exception {
-        AuthChain authChain = (AuthChain) SdkCommon.getTransport().getChain(resourceUri);
-        return new PolicyBuilder(authChain);
-    }
-
-    public class PolicyBuilder {
-        private AuthChain _authChain;
-        private AuthBlock.Builder _blockBuilder;
-
-        PolicyBuilder(AuthChain authChain, URI resourceUri) throws Exception {
-            this(authChain);
-            _blockBuilder.setSubject(resourceUri);
-        }
-
-        PolicyBuilder(AuthChain authChain) throws Exception {
-            _authChain = authChain;
-            _blockBuilder = authChain.newBlockBuilder()
-                    .setIssuer(_acct)
-                    .setIssuerKey(Identity.this.getActiveKeyPair());
-        }
-
-        public PolicyBuilder viralGrant(PublicIdentity grantee, String privilege) throws Exception {
-            _blockBuilder.addGrant(new AuthBlock.Grant(AuthBlock.Grant.Type.VIRAL_GRANT, grantee.getAcct(), privilege));
-            return this;
-        }
-
-        public PolicyBuilder grant(PublicIdentity grantee, String privilege) throws Exception {
-            _blockBuilder.addGrant(new AuthBlock.Grant(AuthBlock.Grant.Type.GRANT, grantee.getAcct(), privilege));
-            return this;
-        }
-
-        public PolicyBuilder revoke(PublicIdentity grantee, String privilege) throws Exception {
-            _blockBuilder.addGrant(new AuthBlock.Grant(AuthBlock.Grant.Type.REVOKE, grantee.getAcct(), privilege));
-            return this;
-        }
-
-        public void commit() throws Exception {
-            _blockBuilder.build();
-            SdkCommon.getTransport().putChain(_authChain);
-        }
     }
 }

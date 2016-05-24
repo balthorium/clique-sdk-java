@@ -8,7 +8,7 @@ import java.net.URI;
 
 abstract public class Validator<T extends AbstractBlock> {
 
-    protected T _currentBlock;
+    protected T _lastValidated;
     protected URI _chainIssuer;
     protected URI _chainSubject;
     protected Transport _transport;
@@ -18,9 +18,13 @@ abstract public class Validator<T extends AbstractBlock> {
     }
 
     public void reset() {
-        _currentBlock = null;
+        _lastValidated = null;
         _chainIssuer = null;
         _chainSubject = null;
+    }
+
+    public T lastValidatedBlock() {
+        return _lastValidated;
     }
 
     public final void validate(T block) throws Exception {
@@ -31,7 +35,7 @@ abstract public class Validator<T extends AbstractBlock> {
     protected void doValidation(T block) throws Exception {
         validateSignature(block);
 
-        if (null == _currentBlock) {
+        if (null == _lastValidated) {
             _chainIssuer = block.getIssuer();
             _chainSubject = block.getSubject();
         }
@@ -43,29 +47,29 @@ abstract public class Validator<T extends AbstractBlock> {
     protected void doPostValidation(T block) throws Exception {
 
         // set the validated block as the new current block
-        _currentBlock = block;
+        _lastValidated = block;
     }
 
     protected void validateAntecedent(T block) throws Exception {
         Object ant = block._jwt.getJWTClaimsSet().getClaim("ant");
 
         // succeed if this is the genesis block (and set the validator's chain-issuer and chain-subject)
-        if (null == ant && null == _currentBlock) {
+        if (null == ant && null == _lastValidated) {
             return;
         }
 
-        // fail if ant is null but not _currentBlock
+        // fail if ant is null but not _lastValidated
         if (null == ant) {
             throw new InvalidBlockException("block antecedent claim is null but should not be");
         }
 
-        // fail if _currentBlock is null but not ant
-        if (null == _currentBlock) {
+        // fail if _lastValidated is null but not ant
+        if (null == _lastValidated) {
             throw new InvalidBlockException("block antecedent claim is not null but should be");
         }
 
-        // fail if ant and _currentBlock hash don't match
-        if (!ant.toString().equals(_currentBlock.getHash())) {
+        // fail if ant and _lastValidated hash don't match
+        if (!ant.toString().equals(_lastValidated.getHash())) {
             throw new InvalidBlockException("block antecedent claim does not match hash of preceding block");
         }
     }

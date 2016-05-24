@@ -45,7 +45,7 @@ public class IdChain extends AbstractChain<IdBlock> {
         return _blocks.get(_blocks.size() - 1).getPkt();
     }
 
-    public IdBlock.Builder newBlockBuilder() {
+    public IdBlock.Builder newBuilder() {
         return new IdBlock.Builder(this);
     }
 }
