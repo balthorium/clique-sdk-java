@@ -7,7 +7,7 @@ $ mvn verify
 
 ## Generated Artifacts
 
-SDK Library:
+SDK Library (package phase):
 target/clique-sdk-<version>.jar
 
 Unit Test Report (test phase):
