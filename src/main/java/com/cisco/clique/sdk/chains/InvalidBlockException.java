@@ -17,7 +17,8 @@ public class InvalidBlockException extends Exception {
         super(cause);
     }
 
-    protected InvalidBlockException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected InvalidBlockException(
+            String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

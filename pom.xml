@@ -20,6 +20,7 @@
         <testng.version>6.9.10</testng.version>
         <jacoco.version>0.7.6.201602180812</jacoco.version>
         <surefire.version>2.19.1</surefire.version>
+        <checkstyle.version>2.17</checkstyle.version>
     </properties>
 
     <dependencies>
@@ -120,6 +121,28 @@
                             <dataFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</dataFile>
                             <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.version}</version>
+                <executions>
+                    <execution>
+                        <id>checkstyle-verify</id>
+                        <phase>verify</phase>
+                        <configuration>
+                            <configLocation>${project.basedir}/src/main/resources/checkstyle.xml</configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <!--<linkXRef>false</linkXRef>-->
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -96,7 +96,6 @@ public class Identity extends PublicIdentity {
      * @throws Exception On failure.
      */
     public ECKey rotateKeyPair() throws Exception {
-        Transport transport = SdkCommon.getTransport();
 
         // generate a new key pair
         ECKey.Curve crv = ECKey.Curve.P_256;
@@ -136,7 +135,7 @@ public class Identity extends PublicIdentity {
         }
 
         // publish the new version of this identity's IdChain
-        transport.putChain(_idChain);
+        SdkCommon.getTransport().putChain(_idChain);
 
         return key;
     }
