@@ -6,6 +6,7 @@
     <artifactId>clique-sdk</artifactId>
     <version>0.1</version>
     <packaging>jar</packaging>
+    <url>https://clique.cisco.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

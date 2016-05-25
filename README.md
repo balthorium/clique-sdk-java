@@ -7,6 +7,9 @@ $ mvn verify
 
 ## Generated Artifacts
 
+SDK Library:
+target/clique-sdk-<version>.jar
+
 Unit Test Report (test phase):
 target/surefire-reports/index.html
 
