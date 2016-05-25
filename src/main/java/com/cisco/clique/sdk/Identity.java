@@ -171,7 +171,6 @@ public class Identity extends PublicIdentity {
 
     @Override
     public String toString() {
-        String retval = null;
         try {
             ObjectNode identity = _mapper.createObjectNode();
             identity.set("chain", _mapper.readTree(_idChain.toString()));
@@ -181,12 +180,12 @@ public class Identity extends PublicIdentity {
                 keyNode.put("kid", key.computeThumbprint().toString());
                 keys.add(keyNode);
             }
-            retval = _mapper
+            return _mapper
                     .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(identity);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return retval;
+        return "";
     }
 }

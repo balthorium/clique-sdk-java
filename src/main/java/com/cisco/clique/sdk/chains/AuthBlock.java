@@ -156,20 +156,19 @@ public class AuthBlock extends AbstractBlock {
          */
         @Override
         public String toString() {
-            String retval = null;
             try {
                 ObjectNode grant = _mapper.createObjectNode();
                 grant.put("type", _type.toString());
                 grant.put("privilege", _privilege);
                 grant.put("grantee", _grantee.toString());
 
-                retval = _mapper
+                return _mapper
                         .writerWithDefaultPrettyPrinter()
                         .writeValueAsString(grant);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return retval;
+            return "";
         }
 
         public enum Type {

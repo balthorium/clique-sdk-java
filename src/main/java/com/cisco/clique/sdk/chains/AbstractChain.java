@@ -93,6 +93,6 @@ public abstract class AbstractChain<T extends AbstractBlock> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return "";
     }
 }
