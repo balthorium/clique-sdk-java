@@ -13,19 +13,8 @@ import java.security.Security;
 import static org.testng.Assert.*;
 
 public class PolicyTest {
-    URI _mintUri;
-    URI _aliceUri;
-    URI _bobUri;
-    URI _chuckUri;
-    URI _dianeUri;
-
-    URI _resourceUri;
-
-    Identity _alice;
-    Identity _bob;
-    Identity _chuck;
-    Identity _diane;
-
+    URI _mintUri, _aliceUri,_bobUri, _chuckUri,_dianeUri, _resourceUri;
+    Identity _alice, _bob, _chuck, _diane;
     String _readPrivilege;
     String _writePrivilege;
 
