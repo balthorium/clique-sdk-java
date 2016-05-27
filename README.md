@@ -17,10 +17,10 @@ Unit Test Report (test phase):
 Test Coverage Report (test phase):
 `target/site/jacoco-ut/index.html`
 
-FindBugs Report (verify phase):
+Static Analysis Report (verify phase):
 `target/site/findbugs/findbugsXml.xml`
 
-Checkstyle Report (verify phase):
+Coding Style Report (verify phase):
 `target/checkstyle-result.xml`
 
 Javadocs (verify phase):
