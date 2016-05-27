@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.cisco.clique.sdk</groupId>
+    <groupId>com.cisco.clique</groupId>
     <artifactId>clique-sdk</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -12,7 +12,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <compiler-plugin.version>3.2</compiler-plugin.version>
         <javadoc-plugin.version>2.10.3</javadoc-plugin.version>
-        <java.version>1.8</java.version>
+        <java.version>1.7</java.version>
         <bouncycastle.version>1.54</bouncycastle.version>
         <nimbus.version>4.11</nimbus.version>
         <jackson.version>2.7.0</jackson.version>

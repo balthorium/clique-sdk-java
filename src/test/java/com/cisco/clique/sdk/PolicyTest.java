@@ -2,7 +2,6 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.InvalidBlockException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -13,7 +12,7 @@ import java.security.Security;
 import static org.testng.Assert.*;
 
 public class PolicyTest {
-    URI _mintUri, _aliceUri,_bobUri, _chuckUri,_dianeUri, _resourceUri;
+    URI _mintUri, _aliceUri, _bobUri, _chuckUri, _dianeUri, _resourceUri;
     Identity _alice, _bob, _chuck, _diane;
     String _readPrivilege;
     String _writePrivilege;
@@ -91,17 +90,20 @@ public class PolicyTest {
 
         // chuck does this
         {
-            Policy policy = Policy.get(_resourceUri);
+            final Policy policy = Policy.get(_resourceUri);
             assertNotNull(policy);
             assertTrue(policy.hasPrivilege(_chuck, _readPrivilege));
             assertFalse(policy.hasPrivilege(_chuck, _writePrivilege));
 
-            PublicIdentity dianePublic = PublicIdentity.get(_dianeUri);
-
-            assertThrows(InvalidBlockException.class, () -> policy.update(_chuck)
-                    .grant(dianePublic, _readPrivilege)
-                    .commit());
-
+            final PublicIdentity dianePublic = PublicIdentity.get(_dianeUri);
+            assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
+                @Override
+                public void run() throws Exception {
+                    policy.update(_chuck)
+                            .grant(dianePublic, _readPrivilege)
+                            .commit();
+                }
+            });
             assertFalse(policy.hasPrivilege(dianePublic, _readPrivilege));
         }
     }

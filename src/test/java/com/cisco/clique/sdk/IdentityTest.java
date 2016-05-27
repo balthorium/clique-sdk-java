@@ -72,11 +72,19 @@ public class IdentityTest {
 
     @Test
     public void blockDuplicateIdentitiesOnOneTransportTest() throws Exception {
+
+        ThrowingRunnable newMintIdentity = new ThrowingRunnable() {
+            @Override
+            public void run() throws Exception {
+                new Identity(_mintUri);
+            }
+        };
+
         new Identity(_mintUri);
-        assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
+        assertThrows(IllegalArgumentException.class, newMintIdentity);
         SdkCommon.setTransport(new TransportLocal());
         new Identity(_mintUri);
-        assertThrows(IllegalArgumentException.class, () -> new Identity(_mintUri));
+        assertThrows(IllegalArgumentException.class, newMintIdentity);
     }
 
     @Test
@@ -118,7 +126,12 @@ public class IdentityTest {
         alice.resetValidator();
 
         // fails to revalidate because validation starts from scratch and mint is no longer a trust root
-        assertThrows(InvalidBlockException.class, () -> PublicIdentity.get(_aliceUri));
+        assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                PublicIdentity.get(_aliceUri);
+            }
+        });
     }
 
     @Test

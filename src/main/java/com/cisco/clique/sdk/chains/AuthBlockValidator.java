@@ -31,7 +31,7 @@ public class AuthBlockValidator extends Validator<AuthBlock> {
         // update the _currentGrants and set new block as _lastValidated
         for (AuthBlock.Grant grant : block.getGrants()) {
             URI grantee = grant.getGrantee();
-            _currentGrants.putIfAbsent(grantee, new HashMap<>());
+            _currentGrants.putIfAbsent(grantee, new HashMap<String, AuthBlock.Grant.Type>());
             _currentGrants.get(grantee).put(grant.getPrivilege(), grant.getType());
         }
     }
