@@ -15,6 +15,7 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents an identity, including the identity's unique URI, and a collection of it's key pairs.
@@ -23,8 +24,6 @@ public class Identity extends PublicIdentity {
 
     private Identity _issuer;
     private Map<String, ECKey> _keyPairs;
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
-
 
     /**
      * Creates a new self-asserted identity and initializes it with a new key pair.
@@ -34,6 +33,10 @@ public class Identity extends PublicIdentity {
      */
     public Identity(URI acct) throws Exception {
         this(null, acct);
+    }
+
+    public Identity(String serialization) throws Exception {
+        super(serialization);
     }
 
     /**
@@ -50,7 +53,6 @@ public class Identity extends PublicIdentity {
         }
         _acct = acct;
         _issuer = (null != mint) ? mint : this;
-        _keyPairs = new HashMap<>();
         rotateKeyPair();
     }
 
@@ -85,6 +87,9 @@ public class Identity extends PublicIdentity {
     void storeKeyPair(ECKey key) throws Exception {
         if (null == key) {
             throw new IllegalArgumentException("key must be non-null");
+        }
+        if (null == _keyPairs) {
+            _keyPairs = new HashMap<>();
         }
         _keyPairs.put(key.toPublicJWK().computeThumbprint().toString(), key);
     }
@@ -167,6 +172,41 @@ public class Identity extends PublicIdentity {
             retval = getKeyPair(chain.getActivePkt());
         }
         return retval;
+    }
+
+    @Override
+    protected ObjectNode serializeAsJson() throws Exception {
+        ObjectNode json = super.serializeAsJson();
+        ArrayNode keys = json.putArray("keys");
+        for (ECKey key : _keyPairs.values()) {
+            ObjectNode keyNode = (ObjectNode) _mapper.readTree(key.toJSONString());
+            keys.add(keyNode);
+        }
+        return json;
+    }
+
+    protected void deserializeFromJson(ObjectNode json) throws Exception {
+        super.deserializeFromJson(json);
+        ArrayNode array = (ArrayNode) json.findPath("keys");
+        for (JsonNode node : array) {
+            storeKeyPair(ECKey.parse(_mapper.writeValueAsString(node)));
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!super.equals(o)) return false;
+        if (!(o instanceof Identity)) return false;
+        Identity that = (Identity) o;
+        return _keyPairs.keySet().equals(that._keyPairs.keySet());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + _keyPairs.hashCode();
+        return result;
     }
 
     @Override

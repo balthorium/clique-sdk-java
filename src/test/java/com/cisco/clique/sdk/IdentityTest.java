@@ -9,7 +9,6 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-import java.security.PublicKey;
 import java.security.Security;
 
 import static org.testng.Assert.*;
@@ -158,5 +157,25 @@ public class IdentityTest {
         assertFalse(pubkey2.isPrivate());
         assertNull(pubkey2.getD());
         assertEquals(pubkey2.computeThumbprint(), key1.computeThumbprint());
+    }
+
+    @Test
+    public void serializeDeserializePublicIdentity() throws Exception {
+        new Identity(new Identity(_mintUri), _aliceUri);
+        PublicIdentity alicePublic1 = PublicIdentity.get(_aliceUri);
+        assertNotNull(alicePublic1);
+        String alicePublicSerialized = alicePublic1.serialize();
+        assertNotNull(alicePublicSerialized);
+        PublicIdentity alicePublic2 = new PublicIdentity(alicePublicSerialized);
+        assertEquals(alicePublic2, alicePublic1);
+    }
+
+    @Test
+    public void serializeDeserializeIdentity() throws Exception {
+        Identity alice1 = new Identity(new Identity(_mintUri), _aliceUri);
+        String aliceSerialized = alice1.serialize();
+        assertNotNull(aliceSerialized);
+        Identity alice2 = new Identity(aliceSerialized);
+        assertEquals(alice2, alice1);
     }
 }
