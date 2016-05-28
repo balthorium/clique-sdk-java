@@ -18,17 +18,7 @@ public class Identity extends PublicIdentity {
 
     private Map<String, ECKey> _keyPairs;
 
-    public Identity(URI acct) throws Exception {
-        this(null, acct);
-    }
-
-    public Identity(Identity mint, URI acct) throws Exception {
-        if (null != mint && null == _transport.getChain(mint.getAcct())) {
-            throw new IllegalArgumentException("an identity chain could not be found for the given mint URI");
-        }
-        if (null != _transport.getChain(acct)) {
-            throw new IllegalArgumentException("an identity chain already exists for the given acct URI");
-        }
+    Identity(Identity mint, URI acct) throws Exception {
         ECKey key = createNewKeyPair();
         _idChain = new IdChain();
         _idChain.newBuilder()

@@ -1,6 +1,7 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.IdChain;
+import com.cisco.clique.sdk.chains.SdkCommon;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -15,24 +16,17 @@ public class PublicIdentity {
 
     protected PublicIdentity() {
         _idChain = null;
-        _transport = SdkCommon.getTransport();
+        _transport = Clique.getInstance().getTransport();
     }
 
-    public PublicIdentity(URI acct) throws Exception {
-        this();
-        if (null == acct) {
-            throw new IllegalArgumentException("the acct URI must be non-null");
-        }
-        IdChain chain = (IdChain) _transport.getChain(acct);
-        if (null == chain) {
-            throw new IllegalArgumentException("the acct URI has no published identity chain");
-        }
-        chain.validate();
+    PublicIdentity(IdChain chain) throws Exception {
         _idChain = chain;
+        _transport = Clique.getInstance().getTransport();
+        _idChain.validate();
     }
 
     public PublicIdentity(String serialization) throws Exception {
-        this();
+        _transport = Clique.getInstance().getTransport();
         deserializeFromJson((ObjectNode) _mapper.readTree(serialization));
     }
 

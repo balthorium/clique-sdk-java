@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.SdkCommon;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;

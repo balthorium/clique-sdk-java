@@ -1,4 +1,4 @@
-package com.cisco.clique.sdk;
+package com.cisco.clique.sdk.chains;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -17,13 +17,9 @@ import java.util.TimeZone;
 public class SdkCommon {
 
     private static final SimpleModule _dateModule;
-    private static Transport _transport;
-    private static Set<String> _trustRoots;
 
     static {
         Security.addProvider(new BouncyCastleProvider());
-        _transport = new TransportLocal();
-        _trustRoots = new HashSet<>();
 
         /**
          * We want all object mappers to serialize date fields as UTC and in RFC-3339 iso-date-time format.
@@ -45,16 +41,5 @@ public class SdkCommon {
         return mapper;
     }
 
-    public static Transport getTransport() {
-        return _transport;
-    }
-
-    public static void setTransport(Transport transport) {
-        _transport = transport;
-    }
-
-    public static Set<String> getTrustRoots() {
-        return _trustRoots;
-    }
 }
 

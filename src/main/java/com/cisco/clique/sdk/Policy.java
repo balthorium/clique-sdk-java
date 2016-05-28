@@ -4,35 +4,15 @@ import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.AuthChain;
 
 import java.net.URI;
-import java.util.TreeSet;
 
 public class Policy {
 
     private AuthChain _authChain;
     private Transport _transport;
 
-    private Policy(AuthChain chain) throws Exception {
+    Policy(AuthChain chain) throws Exception {
         _authChain = chain;
-        _transport = SdkCommon.getTransport();
-    }
-
-    public static PolicyBuilder create(Identity issuer, URI resource) throws Exception {
-        if (null == issuer || null == resource) {
-            throw new IllegalArgumentException("the issuer and resource URI must both be non-null");
-        }
-        return new Policy(new AuthChain()).new PolicyBuilder(issuer, resource);
-    }
-
-    public static Policy get(URI resource) throws Exception {
-        if (null == resource) {
-            throw new IllegalArgumentException("the resource URI must be non-null");
-        }
-        AuthChain chain = (AuthChain) SdkCommon.getTransport().getChain(resource);
-        if (null != chain) {
-            chain.validate();
-            return new Policy(chain);
-        }
-        return null;
+        _transport = Clique.getInstance().getTransport();
     }
 
     public PolicyBuilder update(Identity issuer) throws Exception {

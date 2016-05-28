@@ -1,6 +1,7 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AbstractChain;
+import com.cisco.clique.sdk.chains.SdkCommon;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -9,11 +10,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * This is a simple implementation of the Transport interface that does nothing more than maintain a local
- * cache of public keys and chains.  This is an in-memory transport and does not interact with any other services or
- * peers over the network.  This is mainly used for simple demonstrations and testing.
- */
 public class TransportLocal implements Transport {
 
     Map<String, ECKey> _keys;

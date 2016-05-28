@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.SdkCommon;
+import com.cisco.clique.sdk.Clique;
 import com.cisco.clique.sdk.Transport;
 import com.nimbusds.jose.jwk.ECKey;
 
@@ -14,7 +14,7 @@ public abstract class Validator<T extends AbstractBlock> {
     protected Transport _transport;
 
     public Validator() {
-        _transport = SdkCommon.getTransport();
+        _transport = Clique.getInstance().getTransport();
     }
 
     public void reset() {

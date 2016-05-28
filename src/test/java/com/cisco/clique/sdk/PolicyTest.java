@@ -8,10 +8,12 @@ import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.security.Security;
+import java.util.HashSet;
 
 import static org.testng.Assert.*;
 
 public class PolicyTest {
+    Clique _clique;
     URI _mintUri, _aliceUri, _bobUri, _chuckUri, _dianeUri, _resourceUri;
     Identity _alice, _bob, _chuck, _diane;
     String _readPrivilege;
@@ -20,6 +22,7 @@ public class PolicyTest {
     @BeforeTest
     public void suiteSetUp() {
         Security.addProvider(new BouncyCastleProvider());
+        _clique = Clique.getInstance();
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");
         _bobUri = URI.create("uri:clique:bob");
@@ -33,21 +36,22 @@ public class PolicyTest {
 
     @BeforeMethod
     public void testSetUp() throws Exception {
-        SdkCommon.setTransport(new TransportLocal());
-        SdkCommon.getTrustRoots().clear();
-        Identity mint = new Identity(_mintUri);
-        _alice = new Identity(mint, _aliceUri);
-        _bob = new Identity(mint, _bobUri);
-        _chuck = new Identity(mint, _chuckUri);
-        _diane = new Identity(mint, _dianeUri);
+        _clique.setTransport(new TransportLocal());
+        _clique.setTrustRoots(new HashSet<String>());
+
+        Identity mint = _clique.createIdentity(_mintUri);
+        _alice = _clique.createIdentity(mint, _aliceUri);
+        _bob = _clique.createIdentity(mint, _bobUri);
+        _chuck = _clique.createIdentity(mint, _chuckUri);
+        _diane = _clique.createIdentity(mint, _dianeUri);
     }
 
     @Test
     public void newPolicyTest() throws Exception {
 
-        PublicIdentity bobPublic = new PublicIdentity(_bobUri);
+        PublicIdentity bobPublic = _clique.getPublicIdentity(_bobUri);
 
-        Policy policy = Policy.create(_alice, _resourceUri)
+        Policy policy = _clique.createPolicy(_alice, _resourceUri)
                 .viralGrant(_alice, _readPrivilege)
                 .grant(bobPublic, _writePrivilege)
                 .commit();
@@ -67,9 +71,9 @@ public class PolicyTest {
 
         // alice does this
         {
-            PublicIdentity bobPublic = new PublicIdentity(_bobUri);
+            PublicIdentity bobPublic = _clique.getPublicIdentity(_bobUri);
 
-            Policy.create(_alice, _resourceUri)
+            _clique.createPolicy(_alice, _resourceUri)
                     .viralGrant(bobPublic, _readPrivilege)
                     .grant(bobPublic, _writePrivilege)
                     .commit();
@@ -77,9 +81,9 @@ public class PolicyTest {
 
         // bob does this
         {
-            PublicIdentity chuckPublic = new PublicIdentity(_chuckUri);
+            PublicIdentity chuckPublic = _clique.getPublicIdentity(_chuckUri);
 
-            Policy policy = Policy.get(_resourceUri);
+            Policy policy = _clique.getPolicy(_resourceUri);
             assertNotNull(policy);
             policy.update(_bob)
                     .grant(chuckPublic, _readPrivilege)
@@ -90,12 +94,12 @@ public class PolicyTest {
 
         // chuck does this
         {
-            final Policy policy = Policy.get(_resourceUri);
+            final Policy policy = _clique.getPolicy(_resourceUri);
             assertNotNull(policy);
             assertTrue(policy.hasPrivilege(_chuck, _readPrivilege));
             assertFalse(policy.hasPrivilege(_chuck, _writePrivilege));
 
-            final PublicIdentity dianePublic = new PublicIdentity(_dianeUri);
+            final PublicIdentity dianePublic = _clique.getPublicIdentity(_dianeUri);
             assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
                 @Override
                 public void run() throws Exception {
