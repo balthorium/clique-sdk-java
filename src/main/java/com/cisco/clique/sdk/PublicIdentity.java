@@ -1,58 +1,55 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.IdChain;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
 
-import java.io.IOException;
 import java.net.URI;
 
 public class PublicIdentity {
 
-    URI _acct;
     protected IdChain _idChain;
+    protected Transport _transport;
     protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     protected PublicIdentity() {
+        _idChain = null;
+        _transport = SdkCommon.getTransport();
     }
 
-    protected PublicIdentity(String serialization) throws Exception {
-        deserializeFromJson((ObjectNode) _mapper.readTree(serialization));
-    }
-
-    private PublicIdentity(IdChain chain) throws Exception {
-        _idChain = chain;
-        _acct = _idChain.getSubject();
-    }
-
-    public static PublicIdentity get(URI acct) throws Exception {
+    public PublicIdentity(URI acct) throws Exception {
+        this();
         if (null == acct) {
             throw new IllegalArgumentException("the acct URI must be non-null");
         }
-        IdChain chain = (IdChain) SdkCommon.getTransport().getChain(acct);
-        if (null != chain) {
-            chain.validate();
-            return new PublicIdentity(chain);
+        IdChain chain = (IdChain) _transport.getChain(acct);
+        if (null == chain) {
+            throw new IllegalArgumentException("the acct URI has no published identity chain");
         }
-        return null;
+        chain.validate();
+        _idChain = chain;
+    }
+
+    public PublicIdentity(String serialization) throws Exception {
+        this();
+        deserializeFromJson((ObjectNode) _mapper.readTree(serialization));
     }
 
     public URI getAcct() throws Exception {
-        return _acct;
+        return _idChain.getSubject();
     }
 
     public ECKey getPublicKey(String pkt) throws Exception {
         ECKey retval = null;
         if (_idChain.containsPkt(pkt)) {
-            retval = SdkCommon.getTransport().getKey(pkt);
+            retval = _transport.getKey(pkt);
         }
         return retval;
     }
 
     public ECKey getActivePublicKey() throws Exception {
-        return SdkCommon.getTransport().getKey(_idChain.getActivePkt());
+        return _transport.getKey(_idChain.getActivePkt());
     }
 
     void resetValidator() {
@@ -61,19 +58,14 @@ public class PublicIdentity {
 
     protected ObjectNode serializeAsJson() throws Exception {
         ObjectNode json = _mapper.createObjectNode();
-        json.put("acct", _acct.toString());
+        json.put("acct", _idChain.getSubject().toString());
         return json;
     }
 
     protected void deserializeFromJson(ObjectNode json) throws Exception {
-        _acct = URI.create(json.findPath("acct").asText());
+        _idChain = (IdChain) _transport.getChain(URI.create(json.findPath("acct").asText()));
     }
 
-    /**
-     * Generates a JSON serialization of this object which can be later used to recreate the object.
-     * @return A JSON serialization which can be passed to the constructure to recreate the object.
-     * @throws Exception On error.
-     */
     public String serialize() throws Exception {
         return _mapper.writeValueAsString(serializeAsJson());
     }
@@ -83,12 +75,12 @@ public class PublicIdentity {
         if (this == o) return true;
         if (!(o instanceof PublicIdentity)) return false;
         PublicIdentity that = (PublicIdentity) o;
-        return _acct.equals(that._acct);
+        return _idChain.equals(that._idChain);
     }
 
     @Override
     public int hashCode() {
-        return _acct.hashCode();
+        return _idChain.hashCode();
     }
 
     @Override
