@@ -45,7 +45,7 @@ public class PolicyTest {
     @Test
     public void newPolicyTest() throws Exception {
 
-        PublicIdentity bobPublic = PublicIdentity.get(_bobUri);
+        PublicIdentity bobPublic = new PublicIdentity(_bobUri);
 
         Policy policy = Policy.create(_alice, _resourceUri)
                 .viralGrant(_alice, _readPrivilege)
@@ -67,7 +67,7 @@ public class PolicyTest {
 
         // alice does this
         {
-            PublicIdentity bobPublic = PublicIdentity.get(_bobUri);
+            PublicIdentity bobPublic = new PublicIdentity(_bobUri);
 
             Policy.create(_alice, _resourceUri)
                     .viralGrant(bobPublic, _readPrivilege)
@@ -77,7 +77,7 @@ public class PolicyTest {
 
         // bob does this
         {
-            PublicIdentity chuckPublic = PublicIdentity.get(_chuckUri);
+            PublicIdentity chuckPublic = new PublicIdentity(_chuckUri);
 
             Policy policy = Policy.get(_resourceUri);
             assertNotNull(policy);
@@ -95,7 +95,7 @@ public class PolicyTest {
             assertTrue(policy.hasPrivilege(_chuck, _readPrivilege));
             assertFalse(policy.hasPrivilege(_chuck, _writePrivilege));
 
-            final PublicIdentity dianePublic = PublicIdentity.get(_dianeUri);
+            final PublicIdentity dianePublic = new PublicIdentity(_dianeUri);
             assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
                 @Override
                 public void run() throws Exception {

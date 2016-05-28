@@ -4,13 +4,16 @@ import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.AuthChain;
 
 import java.net.URI;
+import java.util.TreeSet;
 
 public class Policy {
 
-    protected AuthChain _authChain;
+    private AuthChain _authChain;
+    private Transport _transport;
 
     private Policy(AuthChain chain) throws Exception {
         _authChain = chain;
+        _transport = SdkCommon.getTransport();
     }
 
     public static PolicyBuilder create(Identity issuer, URI resource) throws Exception {
@@ -78,9 +81,23 @@ public class Policy {
 
         public Policy commit() throws Exception {
             _blockBuilder.build();
-            SdkCommon.getTransport().putChain(_authChain);
+            _transport.putChain(_authChain);
             return Policy.this;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Policy)) return false;
+        Policy policy = (Policy) o;
+        return _authChain.equals(policy._authChain);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return _authChain.hashCode();
     }
 
     @Override

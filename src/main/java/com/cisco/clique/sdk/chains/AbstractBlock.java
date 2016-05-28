@@ -102,6 +102,24 @@ public abstract class AbstractBlock {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractBlock)) return false;
+        AbstractBlock that = (AbstractBlock) o;
+        try {
+            return serialize().equals(that.serialize());
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return _serialization.hashCode();
+    }
+
+    @Override
     public String toString() {
         return _jwt.getPayload().toString();
     }

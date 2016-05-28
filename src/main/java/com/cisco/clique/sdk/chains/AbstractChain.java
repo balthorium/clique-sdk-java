@@ -81,6 +81,19 @@ public abstract class AbstractChain<T extends AbstractBlock> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractChain)) return false;
+        AbstractChain<?> that = (AbstractChain<?>) o;
+        return _blocks.equals(that._blocks);
+    }
+
+    @Override
+    public int hashCode() {
+        return _blocks.hashCode();
+    }
+
+    @Override
     public String toString() {
         try {
             ArrayNode array = _mapper.createArrayNode();

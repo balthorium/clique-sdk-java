@@ -91,7 +91,7 @@ public class IdentityTest {
         Identity mint = new Identity(_mintUri);
         Identity alice = new Identity(mint, _aliceUri);
 
-        PublicIdentity alicePublic = PublicIdentity.get(_aliceUri);
+        PublicIdentity alicePublic = new PublicIdentity(_aliceUri);
         assertNotNull(alicePublic);
         assertEquals(alicePublic.getAcct(), alice.getAcct());
     }
@@ -106,21 +106,21 @@ public class IdentityTest {
         SdkCommon.getTrustRoots().clear();
 
         // this fetch will still succeed because the cached identity was already validated (incremental validation)
-        PublicIdentity alice = PublicIdentity.get(_aliceUri);
+        PublicIdentity alice = new PublicIdentity(_aliceUri);
         assertNotNull(alice);
 
         // now clear the identity's validation state
         alice.resetValidator();
 
         // it's still okay because the mint's identity state is still cached and considered valid
-        alice = PublicIdentity.get(_aliceUri);
+        alice = new PublicIdentity(_aliceUri);
         assertNotNull(alice);
 
         // now clear both mint and identity's validation states
-        PublicIdentity mint = PublicIdentity.get(_mintUri);
+        PublicIdentity mint = new PublicIdentity(_mintUri);
         assertNotNull(mint);
         mint.resetValidator();
-        alice = PublicIdentity.get(_aliceUri);
+        alice = new PublicIdentity(_aliceUri);
         assertNotNull(alice);
         alice.resetValidator();
 
@@ -128,7 +128,7 @@ public class IdentityTest {
         assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
             @Override
             public void run() throws Throwable {
-                PublicIdentity.get(_aliceUri);
+                new PublicIdentity(_aliceUri);
             }
         });
     }
@@ -143,7 +143,7 @@ public class IdentityTest {
         Assert.assertTrue(key1.isPrivate());
         assertNotNull(key1.getD());
 
-        PublicIdentity alicePublic = PublicIdentity.get(_aliceUri);
+        PublicIdentity alicePublic = new PublicIdentity(_aliceUri);
         assertNotNull(alicePublic);
 
         ECKey pubkey1 = alicePublic.getActivePublicKey();
@@ -162,7 +162,7 @@ public class IdentityTest {
     @Test
     public void serializeDeserializePublicIdentity() throws Exception {
         new Identity(new Identity(_mintUri), _aliceUri);
-        PublicIdentity alicePublic1 = PublicIdentity.get(_aliceUri);
+        PublicIdentity alicePublic1 = new PublicIdentity(_aliceUri);
         assertNotNull(alicePublic1);
         String alicePublicSerialized = alicePublic1.serialize();
         assertNotNull(alicePublicSerialized);
