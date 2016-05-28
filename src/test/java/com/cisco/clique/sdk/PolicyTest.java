@@ -23,6 +23,7 @@ public class PolicyTest {
     public void suiteSetUp() {
         Security.addProvider(new BouncyCastleProvider());
         _clique = Clique.getInstance();
+
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");
         _bobUri = URI.create("uri:clique:bob");
@@ -54,11 +55,11 @@ public class PolicyTest {
         Policy policy = _clique.createPolicy(_alice, _resourceUri)
                 .viralGrant(_alice, _readPrivilege)
                 .grant(bobPublic, _writePrivilege)
-                .commit();
+                .build();
 
         policy.update(_alice)
                 .grant(bobPublic, _readPrivilege)
-                .commit();
+                .build();
 
         assertTrue(policy.hasPrivilege(_alice, _readPrivilege));
         assertFalse(policy.hasPrivilege(_alice, _writePrivilege));
@@ -76,7 +77,7 @@ public class PolicyTest {
             _clique.createPolicy(_alice, _resourceUri)
                     .viralGrant(bobPublic, _readPrivilege)
                     .grant(bobPublic, _writePrivilege)
-                    .commit();
+                    .build();
         }
 
         // bob does this
@@ -87,7 +88,7 @@ public class PolicyTest {
             assertNotNull(policy);
             policy.update(_bob)
                     .grant(chuckPublic, _readPrivilege)
-                    .commit();
+                    .build();
 
             assertTrue(policy.hasPrivilege(chuckPublic, _readPrivilege));
         }
@@ -105,10 +106,69 @@ public class PolicyTest {
                 public void run() throws Exception {
                     policy.update(_chuck)
                             .grant(dianePublic, _readPrivilege)
-                            .commit();
+                            .build();
                 }
             });
             assertFalse(policy.hasPrivilege(dianePublic, _readPrivilege));
         }
+    }
+
+    @Test
+    public void revokeTest() throws Exception {
+
+        Policy policy = _clique.createPolicy(_alice, _resourceUri)
+                .viralGrant(_bob, _readPrivilege)
+                .viralGrant(_chuck, _readPrivilege)
+                .grant(_diane, _readPrivilege)
+                .build();
+
+        assertNotNull(policy);
+        assertFalse(policy.hasPrivilege(_alice, _readPrivilege));
+        assertTrue(policy.hasPrivilege(_bob, _readPrivilege));
+        assertTrue(policy.hasPrivilege(_chuck, _readPrivilege));
+        assertTrue(policy.hasPrivilege(_diane, _readPrivilege));
+
+        policy.update(_bob)
+                .revoke(_chuck, _readPrivilege)
+                .revoke(_diane, _readPrivilege)
+                .build();
+
+        assertNotNull(policy);
+        assertFalse(policy.hasPrivilege(_alice, _readPrivilege));
+        assertTrue(policy.hasPrivilege(_bob, _readPrivilege));
+        assertFalse(policy.hasPrivilege(_chuck, _readPrivilege));
+        assertFalse(policy.hasPrivilege(_diane, _readPrivilege));
+    }
+
+    @Test
+    public void serializeDeserializePolicy() throws Exception {
+
+        Policy policy1 = _clique.createPolicy(_alice, _resourceUri)
+                .viralGrant(_alice, _readPrivilege)
+                .viralGrant(_alice, _writePrivilege)
+                .viralGrant(_bob, _readPrivilege)
+                .grant(_bob, _writePrivilege)
+                .build();
+
+        assertNotNull(policy1);
+
+        policy1.update(_bob)
+                .viralGrant(_chuck, _readPrivilege)
+                .grant(_diane, _readPrivilege)
+                .build();
+
+        String policySerialized = policy1.serialize();
+        assertNotNull(policySerialized);
+        Policy policy2 = new Policy(policySerialized);
+        assertEquals(policy2, policy1);
+
+        assertTrue(policy2.hasPrivilege(_alice, _readPrivilege));
+        assertTrue(policy2.hasPrivilege(_alice, _writePrivilege));
+        assertTrue(policy2.hasPrivilege(_bob, _readPrivilege));
+        assertTrue(policy2.hasPrivilege(_bob, _writePrivilege));
+        assertTrue(policy2.hasPrivilege(_chuck, _readPrivilege));
+        assertFalse(policy2.hasPrivilege(_chuck, _writePrivilege));
+        assertTrue(policy2.hasPrivilege(_diane, _readPrivilege));
+        assertFalse(policy2.hasPrivilege(_diane, _writePrivilege));
     }
 }

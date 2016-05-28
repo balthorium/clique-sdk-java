@@ -2,6 +2,8 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.AuthChain;
+import com.cisco.clique.sdk.chains.IdChain;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.net.URI;
 
@@ -13,6 +15,10 @@ public class Policy {
     Policy(AuthChain chain) throws Exception {
         _authChain = chain;
         _transport = Clique.getInstance().getTransport();
+    }
+
+    public Policy(String serialization) throws Exception {
+        _authChain = new AuthChain(serialization);
     }
 
     public PolicyBuilder update(Identity issuer) throws Exception {
@@ -28,6 +34,29 @@ public class Policy {
 
     void resetValidator() {
         _authChain.resetValidator();
+    }
+
+    public String serialize() throws Exception {
+        return _authChain.serialize();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Policy)) return false;
+        Policy policy = (Policy) o;
+        return _authChain.equals(policy._authChain);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return _authChain.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return _authChain.toString();
     }
 
     public class PolicyBuilder {
@@ -59,29 +88,10 @@ public class Policy {
             return this;
         }
 
-        public Policy commit() throws Exception {
+        public Policy build() throws Exception {
             _blockBuilder.build();
             _transport.putChain(_authChain);
             return Policy.this;
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Policy)) return false;
-        Policy policy = (Policy) o;
-        return _authChain.equals(policy._authChain);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return _authChain.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return _authChain.toString();
     }
 }

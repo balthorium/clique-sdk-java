@@ -50,6 +50,10 @@ public class PublicIdentity {
         _idChain.resetValidator();
     }
 
+    public String serialize() throws Exception {
+        return _mapper.writeValueAsString(serializeAsJson());
+    }
+
     protected ObjectNode serializeAsJson() throws Exception {
         ObjectNode json = _mapper.createObjectNode();
         json.put("acct", _idChain.getSubject().toString());
@@ -58,10 +62,6 @@ public class PublicIdentity {
 
     protected void deserializeFromJson(ObjectNode json) throws Exception {
         _idChain = (IdChain) _transport.getChain(URI.create(json.findPath("acct").asText()));
-    }
-
-    public String serialize() throws Exception {
-        return _mapper.writeValueAsString(serializeAsJson());
     }
 
     @Override
