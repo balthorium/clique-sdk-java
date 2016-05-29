@@ -64,10 +64,14 @@ public class PublicIdentity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PublicIdentity)) return false;
-        PublicIdentity that = (PublicIdentity) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof PublicIdentity)) {
+            return false;
+        }
+        PublicIdentity that = (PublicIdentity) obj;
         return _idChain.equals(that._idChain);
     }
 

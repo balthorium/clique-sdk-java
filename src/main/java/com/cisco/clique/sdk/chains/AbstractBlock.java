@@ -101,10 +101,14 @@ public abstract class AbstractBlock {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractBlock)) return false;
-        AbstractBlock that = (AbstractBlock) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof AbstractBlock)) {
+            return false;
+        }
+        AbstractBlock that = (AbstractBlock) obj;
         try {
             return serialize().equals(that.serialize());
         } catch (Exception e) {

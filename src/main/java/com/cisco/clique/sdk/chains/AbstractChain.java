@@ -80,10 +80,14 @@ public abstract class AbstractChain<T extends AbstractBlock> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof AbstractChain)) return false;
-        AbstractChain<?> that = (AbstractChain<?>) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof AbstractChain)) {
+            return false;
+        }
+        AbstractChain<?> that = (AbstractChain<?>) obj;
         return _blocks.equals(that._blocks);
     }
 

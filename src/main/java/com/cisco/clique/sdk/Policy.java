@@ -39,10 +39,14 @@ public class Policy {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Policy)) return false;
-        Policy policy = (Policy) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Policy)) {
+            return false;
+        }
+        Policy policy = (Policy) obj;
         return _authChain.equals(policy._authChain);
 
     }

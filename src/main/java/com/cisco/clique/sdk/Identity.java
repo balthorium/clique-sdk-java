@@ -99,11 +99,17 @@ public class Identity extends PublicIdentity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Identity)) return false;
-        if (!super.equals(o)) return false;
-        Identity identity = (Identity) o;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Identity)) {
+            return false;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        Identity identity = (Identity) obj;
         return _keyPairs.keySet().equals(identity._keyPairs.keySet());
     }
 
