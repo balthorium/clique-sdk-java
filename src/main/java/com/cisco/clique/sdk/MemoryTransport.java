@@ -11,12 +11,12 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransportLocal implements Transport {
+public class MemoryTransport implements Transport {
 
     Map<String, ECKey> _keys;
     Map<URI, AbstractChain> _chains;
 
-    public TransportLocal() {
+    public MemoryTransport() {
         _keys = new HashMap<>();
         _chains = new HashMap<>();
     }

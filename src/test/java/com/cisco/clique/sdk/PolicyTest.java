@@ -20,13 +20,11 @@ public class PolicyTest {
     @BeforeTest
     public void suiteSetUp() {
         _clique = Clique.getInstance();
-
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");
         _bobUri = URI.create("uri:clique:bob");
         _chuckUri = URI.create("uri:clique:chuck");
         _dianeUri = URI.create("uri:clique:diane");
-
         _resourceUri = URI.create("uri:some:protected:resource");
         _readPrivilege = "read";
         _writePrivilege = "write";
@@ -34,7 +32,7 @@ public class PolicyTest {
 
     @BeforeMethod
     public void testSetUp() throws Exception {
-        _clique.setTransport(new TransportLocal());
+        _clique.setTransport(new MemoryTransport());
         _clique.setTrustRoots(new HashSet<String>());
 
         Identity mint = _clique.createIdentity(_mintUri);

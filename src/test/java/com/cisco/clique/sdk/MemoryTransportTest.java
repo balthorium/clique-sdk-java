@@ -9,7 +9,7 @@ import java.net.URI;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
-public class TransportLocalTest {
+public class MemoryTransportTest {
     Clique _clique;
     URI _mintUri;
     URI _aliceUri;
@@ -18,7 +18,6 @@ public class TransportLocalTest {
 
     @BeforeTest
     public void suiteSetUp() {
-//        Security.addProvider(new BouncyCastleProvider());
         _clique = Clique.getInstance();
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");

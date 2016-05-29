@@ -103,6 +103,6 @@ public class Clique {
     }
 
     private static class CliqueFactorySingleton {
-        private static final Clique INSTANCE = new Clique(new TransportLocal(), new HashSet<String>());
+        private static final Clique INSTANCE = new Clique(new MemoryTransport(), new HashSet<String>());
     }
 }
