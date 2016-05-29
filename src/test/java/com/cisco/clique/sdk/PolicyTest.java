@@ -1,13 +1,11 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.InvalidBlockException;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-import java.security.Security;
 import java.util.HashSet;
 
 import static org.testng.Assert.*;
@@ -21,7 +19,6 @@ public class PolicyTest {
 
     @BeforeTest
     public void suiteSetUp() {
-        Security.addProvider(new BouncyCastleProvider());
         _clique = Clique.getInstance();
 
         _mintUri = URI.create("uri:clique:mint");

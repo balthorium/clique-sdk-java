@@ -1,12 +1,10 @@
 package com.cisco.clique.sdk;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-import java.security.Security;
 
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
@@ -20,7 +18,7 @@ public class TransportLocalTest {
 
     @BeforeTest
     public void suiteSetUp() {
-        Security.addProvider(new BouncyCastleProvider());
+//        Security.addProvider(new BouncyCastleProvider());
         _clique = Clique.getInstance();
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");

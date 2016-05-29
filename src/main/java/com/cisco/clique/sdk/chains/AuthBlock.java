@@ -86,23 +86,12 @@ public class AuthBlock extends AbstractBlock {
         }
     }
 
-    /**
-     * Represents grant assertions as contained within authorization chain blocks.
-     */
     public static class Grant {
 
         private Type _type;
         private String _privilege;
         private URI _grantee;
 
-        /**
-         * Creates a new grant.
-         *
-         * @param type      The type of grant being asserted.
-         * @param grantee   The identity to which the grant is extended.
-         * @param privilege The privilege to which the grant applies.
-         * @throws Exception On failure.
-         */
         public Grant(Type type, URI grantee, String privilege) throws Exception {
             if (null == type || null == privilege || null == grantee) {
                 throw new IllegalArgumentException();
@@ -112,49 +101,24 @@ public class AuthBlock extends AbstractBlock {
             _privilege = privilege;
         }
 
-        /**
-         * Creates a grant from a given parsed JSON document.
-         *
-         * @param node The root of the JSON document representing a grant.
-         */
         public Grant(JsonNode node) {
             _type = Type.valueOf(node.findPath("type").asText());
             _privilege = node.findPath("privilege").asText();
             _grantee = URI.create(node.findPath("grantee").asText());
         }
 
-        /**
-         * Return the type of this grant.
-         *
-         * @return The type of this grant.
-         */
         public Type getType() {
             return _type;
         }
 
-        /**
-         * Return the privilege to which this grant applies.
-         *
-         * @return The privilege to which this grant applies.
-         */
         public String getPrivilege() {
             return _privilege;
         }
 
-        /**
-         * Return the identity to which this grant is extended.
-         *
-         * @return The identity to which this grant is extended.
-         */
         public URI getGrantee() {
             return _grantee;
         }
 
-        /**
-         * A human readable representation of the grant, useful for logging.
-         *
-         * @return A string representation of the AuthBlock.Grant object's state.
-         */
         @Override
         public String toString() {
             try {
@@ -173,20 +137,8 @@ public class AuthBlock extends AbstractBlock {
         }
 
         public enum Type {
-
-            /**
-             * A privilege grant that also carries the right to extend the same privilege to other identities.
-             */
             VIRAL_GRANT,
-
-            /**
-             * A privilege grant.
-             */
             GRANT,
-
-            /**
-             * A revocation of privilege.
-             */
             REVOKE
         }
     }
