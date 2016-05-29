@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.AbstractChain;
 import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
 
@@ -12,17 +13,13 @@ public class Clique {
     public Transport _transport;
     private Set<String> _trustRoots;
 
-    private static class CliqueFactorySingleton {
-        private static final Clique INSTANCE = new Clique(new TransportLocal(), new HashSet<String>());
+    private Clique(Transport transport, Set<String> trustRoots) {
+        _transport = transport;
+        _trustRoots = trustRoots;
     }
 
     public static Clique getInstance() {
         return CliqueFactorySingleton.INSTANCE;
-    }
-
-    private Clique(Transport transport, Set<String> trustRoots) {
-        _transport = transport;
-        _trustRoots = trustRoots;
     }
 
     public Transport setTransport(Transport transport) {
@@ -45,20 +42,25 @@ public class Clique {
         return _trustRoots;
     }
 
-
     public Identity createIdentity(URI acct) throws Exception {
+        if (null == acct) {
+            throw new IllegalArgumentException("acct URI cannot be null");
+        }
         if (null != _transport.getChain(acct)) {
-            throw new IllegalArgumentException("an identity chain already exists for the given acct URI");
+            throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
         return new Identity(null, acct);
     }
 
     public Identity createIdentity(Identity mint, URI acct) throws Exception {
-        if (null == mint || null == _transport.getChain(mint.getAcct())) {
-            throw new IllegalArgumentException("an identity chain could not be found for the given mint URI");
+        if (null == mint || null == acct) {
+            throw new IllegalArgumentException("mint and acct URIs must both be non-null");
+        }
+        if (null == _transport.getChain(mint.getAcct())) {
+            throw new IllegalArgumentException("an identity chain could not be found for " + acct.toString());
         }
         if (null != _transport.getChain(acct)) {
-            throw new IllegalArgumentException("an identity chain already exists for the given acct URI");
+            throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
         return new Identity(mint, acct);
     }
@@ -67,11 +69,15 @@ public class Clique {
         if (null == acct) {
             throw new IllegalArgumentException("the acct URI must be non-null");
         }
-        IdChain chain = (IdChain) _transport.getChain(acct);
+        AbstractChain chain = _transport.getChain(acct);
         if (null == chain) {
-            throw new IllegalArgumentException("the acct URI has no published identity chain");
+            throw new IllegalArgumentException("no published identity chain found for " + acct.toString());
         }
-        return new PublicIdentity(chain);
+        if (!(chain instanceof IdChain)) {
+            throw new IllegalArgumentException(acct.toString() + " is published but not as an identity chain");
+        }
+        chain.validate();
+        return new PublicIdentity((IdChain) chain);
     }
 
     public Policy.PolicyBuilder createPolicy(Identity issuer, URI resource) throws Exception {
@@ -85,11 +91,18 @@ public class Clique {
         if (null == resource) {
             throw new IllegalArgumentException("the resource URI must be non-null");
         }
-        AuthChain chain = (AuthChain) _transport.getChain(resource);
+        AbstractChain chain = _transport.getChain(resource);
         if (null == chain) {
-            throw new IllegalArgumentException("the resource URI has no corresponding auth chain");
+            throw new IllegalArgumentException("no published auth chain found for " + resource.toString());
+        }
+        if (!(chain instanceof AuthChain)) {
+            throw new IllegalArgumentException(resource.toString() + "is published but not as an auth chain");
         }
         chain.validate();
-        return new Policy(chain);
+        return new Policy((AuthChain) chain);
+    }
+
+    private static class CliqueFactorySingleton {
+        private static final Clique INSTANCE = new Clique(new TransportLocal(), new HashSet<String>());
     }
 }

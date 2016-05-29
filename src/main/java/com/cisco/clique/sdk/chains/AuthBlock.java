@@ -81,6 +81,7 @@ public class AuthBlock extends AbstractBlock {
             block.serialize();
 
             _chain.addBlock(block);
+            _chain.validate();
             return block;
         }
     }

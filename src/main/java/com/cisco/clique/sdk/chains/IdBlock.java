@@ -68,6 +68,7 @@ public class IdBlock extends AbstractBlock {
             }
 
             _chain.addBlock(block);
+            _chain.validate();
             return block;
         }
     }

@@ -10,9 +10,9 @@ import java.net.URI;
 
 public class PublicIdentity {
 
+    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
     protected IdChain _idChain;
     protected Transport _transport;
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
 
     protected PublicIdentity() {
         _idChain = null;
@@ -22,7 +22,6 @@ public class PublicIdentity {
     PublicIdentity(IdChain chain) throws Exception {
         _idChain = chain;
         _transport = Clique.getInstance().getTransport();
-        _idChain.validate();
     }
 
     public PublicIdentity(String serialization) throws Exception {

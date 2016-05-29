@@ -107,8 +107,7 @@ public abstract class AbstractBlock {
         AbstractBlock that = (AbstractBlock) o;
         try {
             return serialize().equals(that.serialize());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }

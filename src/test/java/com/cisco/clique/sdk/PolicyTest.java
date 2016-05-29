@@ -171,4 +171,64 @@ public class PolicyTest {
         assertTrue(policy2.hasPrivilege(_diane, _readPrivilege));
         assertFalse(policy2.hasPrivilege(_diane, _writePrivilege));
     }
+
+    @Test
+    public void createBadPolicyTest() throws Exception {
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.createPolicy(_alice, null).build();
+            }
+        });
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.createPolicy(null, null).build();
+            }
+        });
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.createPolicy(null, _resourceUri).build();
+            }
+        });
+
+        _clique.getTransport().clear();
+        _alice.resetValidator();
+
+        assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.createPolicy(_alice, _resourceUri).build();
+            }
+        });
+    }
+
+    @Test
+    public void getBadPolicyTest() throws Exception {
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.getPolicy(_resourceUri);
+            }
+        });
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.getPolicy(_aliceUri);
+            }
+        });
+
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.getPolicy(null);
+            }
+        });
+    }
 }

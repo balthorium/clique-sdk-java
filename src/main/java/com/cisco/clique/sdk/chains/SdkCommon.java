@@ -7,8 +7,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
 import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TimeZone;
 
 /**

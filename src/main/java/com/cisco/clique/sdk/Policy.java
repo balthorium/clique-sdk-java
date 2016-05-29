@@ -2,8 +2,6 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.AuthChain;
-import com.cisco.clique.sdk.chains.IdChain;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.net.URI;
 

@@ -14,4 +14,6 @@ public interface Transport {
     void putChain(AbstractChain chain) throws Exception;
 
     AbstractChain getChain(URI subject) throws Exception;
+
+    void clear();
 }
