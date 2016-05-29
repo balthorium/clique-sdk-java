@@ -18,7 +18,7 @@ import java.text.ParseException;
 
 public abstract class AbstractBlock {
 
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
+    protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     protected ECKey _key;
     protected SignedJWT _jwt;
     protected String _serialization;

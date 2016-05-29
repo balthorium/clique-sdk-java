@@ -1,7 +1,7 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AbstractChain;
-import com.cisco.clique.sdk.chains.SdkCommon;
+import com.cisco.clique.sdk.chains.JsonMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class MemoryTransport implements Transport {
 
+    protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     Map<String, ECKey> _keys;
     Map<URI, AbstractChain> _chains;
 
@@ -50,17 +51,16 @@ public class MemoryTransport implements Transport {
     @Override
     public String toString() {
         try {
-            ObjectMapper mapper = SdkCommon.createMapper();
-            ObjectNode objectNode = mapper.createObjectNode();
+            ObjectNode objectNode = _mapper.createObjectNode();
             ArrayNode arrayNode = objectNode.putArray("keys");
             for (ECKey key : _keys.values()) {
-                arrayNode.add(mapper.readTree(key.toPublicJWK().toJSONString()));
+                arrayNode.add(_mapper.readTree(key.toPublicJWK().toJSONString()));
             }
             arrayNode = objectNode.putArray("chains");
             for (AbstractChain chain : _chains.values()) {
-                arrayNode.add(mapper.readTree(chain.toString()));
+                arrayNode.add(_mapper.readTree(chain.toString()));
             }
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectNode);
+            return _mapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectNode);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

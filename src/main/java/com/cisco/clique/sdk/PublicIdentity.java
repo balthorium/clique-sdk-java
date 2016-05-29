@@ -1,7 +1,7 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.IdChain;
-import com.cisco.clique.sdk.chains.SdkCommon;
+import com.cisco.clique.sdk.chains.JsonMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -10,7 +10,7 @@ import java.net.URI;
 
 public class PublicIdentity {
 
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
+    protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     protected IdChain _idChain;
     protected Transport _transport;
 

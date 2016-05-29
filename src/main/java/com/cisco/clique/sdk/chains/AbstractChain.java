@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public abstract class AbstractChain<T extends AbstractBlock> {
 
-    protected static final ObjectMapper _mapper = SdkCommon.createMapper();
+    protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     protected Validator<T> _validator;
     protected ArrayList<T> _blocks;
 
