@@ -7,10 +7,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Spliterator;
 import java.util.function.Consumer;
 
-public abstract class AbstractChain<T extends AbstractBlock> implements Iterable<T> {
+public abstract class AbstractChain<T extends AbstractBlock> {
 
     protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     protected Validator<T> _validator;
@@ -30,6 +31,10 @@ public abstract class AbstractChain<T extends AbstractBlock> implements Iterable
         for (JsonNode object : array) {
             addBlock(object.asText());
         }
+    }
+
+    public List<? extends AbstractBlock> getBlocks() {
+        return _blocks;
     }
 
     public void addBlock(T block) throws Exception {
@@ -113,20 +118,5 @@ public abstract class AbstractChain<T extends AbstractBlock> implements Iterable
             e.printStackTrace();
         }
         return "";
-    }
-
-    @Override
-    public Iterator<T> iterator() {
-        return _blocks.iterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super T> action) {
-        _blocks.forEach(action);
-    }
-
-    @Override
-    public Spliterator<T> spliterator() {
-        return _blocks.spliterator();
     }
 }
