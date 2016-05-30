@@ -52,6 +52,7 @@ public class Identity extends PublicIdentity {
                 .setSubject(_idChain.getSubject())
                 .setSubjectPubKey(key.toPublicJWK())
                 .build();
+        _transport.putChain(_idChain);
         return key;
     }
 
