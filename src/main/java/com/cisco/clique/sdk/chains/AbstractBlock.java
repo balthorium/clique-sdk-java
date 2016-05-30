@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.JsonMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -42,6 +43,10 @@ public abstract class AbstractBlock {
         _key = null;
         _serialization = serialization;
         _jwt = SignedJWT.parse(_serialization);
+    }
+
+    public SignedJWT getJwt() {
+        return _jwt;
     }
 
     public String getKid() {

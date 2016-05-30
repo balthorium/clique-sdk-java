@@ -2,7 +2,6 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
-import com.cisco.clique.sdk.chains.JsonMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

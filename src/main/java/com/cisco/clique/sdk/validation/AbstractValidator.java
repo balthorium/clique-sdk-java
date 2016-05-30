@@ -1,19 +1,21 @@
-package com.cisco.clique.sdk.chains;
+package com.cisco.clique.sdk.validation;
 
 import com.cisco.clique.sdk.Clique;
 import com.cisco.clique.sdk.Transport;
+import com.cisco.clique.sdk.chains.AbstractBlock;
+import com.cisco.clique.sdk.chains.IdChain;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
 
-public abstract class Validator<T extends AbstractBlock> {
+public abstract class AbstractValidator<T extends AbstractBlock> {
 
     protected T _lastValidated;
     protected URI _chainIssuer;
     protected URI _chainSubject;
     protected Transport _transport;
 
-    public Validator() {
+    public AbstractValidator() {
         _transport = Clique.getInstance().getTransport();
     }
 
@@ -51,7 +53,7 @@ public abstract class Validator<T extends AbstractBlock> {
     }
 
     protected void validateAntecedent(T block) throws Exception {
-        Object ant = block._jwt.getJWTClaimsSet().getClaim("ant");
+        Object ant = block.getJwt().getJWTClaimsSet().getClaim("ant");
 
         // succeed if this is the genesis block (and set the validator's chain-issuer and chain-subject)
         if (null == ant && null == _lastValidated) {

@@ -1,5 +1,7 @@
 package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.validation.AuthBlockValidator;
+
 import java.net.URI;
 import java.util.ListIterator;
 

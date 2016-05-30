@@ -1,7 +1,6 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.IdChain;
-import com.cisco.clique.sdk.chains.JsonMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;

@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.chains.InvalidBlockException;
+import com.cisco.clique.sdk.validation.InvalidBlockException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;

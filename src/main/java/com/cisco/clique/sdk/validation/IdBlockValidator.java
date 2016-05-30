@@ -1,11 +1,12 @@
-package com.cisco.clique.sdk.chains;
+package com.cisco.clique.sdk.validation;
 
 import com.cisco.clique.sdk.Clique;
+import com.cisco.clique.sdk.chains.IdBlock;
 
 import java.net.URI;
 import java.util.Set;
 
-public class IdBlockValidator extends Validator<IdBlock> {
+public class IdBlockValidator extends AbstractValidator<IdBlock> {
     Set<String> _trustRoots;
 
     public IdBlockValidator() {

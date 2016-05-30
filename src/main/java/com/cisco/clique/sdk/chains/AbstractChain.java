@@ -1,5 +1,7 @@
 package com.cisco.clique.sdk.chains;
 
+import com.cisco.clique.sdk.JsonMapperFactory;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -11,15 +13,15 @@ import java.util.List;
 public abstract class AbstractChain<T extends AbstractBlock> {
 
     protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
-    protected Validator<T> _validator;
+    protected AbstractValidator<T> _validator;
     protected ArrayList<T> _blocks;
 
-    protected AbstractChain(Validator<T> validator) {
+    protected AbstractChain(AbstractValidator<T> validator) {
         _validator = validator;
         _blocks = new ArrayList<>();
     }
 
-    protected AbstractChain(Validator<T> validator, String serialization) throws Exception {
+    protected AbstractChain(AbstractValidator<T> validator, String serialization) throws Exception {
         this(validator);
         if (null == serialization) {
             throw new IllegalArgumentException();
