@@ -1,6 +1,7 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.IdChain;
+import com.cisco.clique.sdk.validation.IdBlockValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -20,7 +21,7 @@ public class Identity extends PublicIdentity {
 
     Identity(Identity mint, URI acct) throws Exception {
         ECKey key = createNewKeyPair();
-        _idChain = new IdChain();
+        _idChain = new IdChain(new IdBlockValidator());
         _idChain.newBlockBuilder()
                 .setIssuer((null != mint) ? mint.getAcct() : acct)
                 .setIssuerKey((null != mint) ? mint.getActiveKeyPair() : key)

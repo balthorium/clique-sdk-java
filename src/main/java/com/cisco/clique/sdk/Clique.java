@@ -3,6 +3,7 @@ package com.cisco.clique.sdk;
 import com.cisco.clique.sdk.chains.AbstractChain;
 import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
+import com.cisco.clique.sdk.validation.AuthBlockValidator;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -84,7 +85,7 @@ public class Clique {
         if (null == issuer || null == resource) {
             throw new IllegalArgumentException("the issuer and resource URI must both be non-null");
         }
-        return new Policy(new AuthChain()).new PolicyBuilder(issuer, resource);
+        return new Policy(new AuthChain(new AuthBlockValidator())).new PolicyBuilder(issuer, resource);
     }
 
     public Policy getPolicy(URI resource) throws Exception {

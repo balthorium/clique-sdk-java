@@ -9,17 +9,9 @@ public class IdChain extends AbstractChain<IdBlock> {
 
     private Set<String> _pkts;
 
-    public IdChain() {
-        this(new IdBlockValidator());
-    }
-
     public IdChain(IdBlockValidator validator) {
         super(validator);
         _pkts = new HashSet<>();
-    }
-
-    public IdChain(String serialization) throws Exception {
-        this(new IdBlockValidator(), serialization);
     }
 
     public IdChain(IdBlockValidator validator, String serialization) throws Exception {

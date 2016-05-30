@@ -2,6 +2,7 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.AuthChain;
+import com.cisco.clique.sdk.validation.AuthBlockValidator;
 
 import java.net.URI;
 
@@ -16,7 +17,7 @@ public class Policy {
     }
 
     public Policy(String serialization) throws Exception {
-        _authChain = new AuthChain(serialization);
+        _authChain = new AuthChain(new AuthBlockValidator(), serialization);
     }
 
     public PolicyBuilder update(Identity issuer) throws Exception {

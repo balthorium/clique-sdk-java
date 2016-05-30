@@ -7,16 +7,8 @@ import java.util.ListIterator;
 
 public class AuthChain extends AbstractChain<AuthBlock> {
 
-    public AuthChain() {
-        this(new AuthBlockValidator());
-    }
-
     public AuthChain(AuthBlockValidator validator) {
         super(validator);
-    }
-
-    public AuthChain(String serialization) throws Exception {
-        this(new AuthBlockValidator(), serialization);
     }
 
     public AuthChain(AuthBlockValidator validator, String serialization) throws Exception {
