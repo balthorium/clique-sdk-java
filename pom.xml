@@ -14,7 +14,7 @@
         <javadoc-plugin.version>2.10.3</javadoc-plugin.version>
         <java.version>1.7</java.version>
         <bouncycastle.version>1.54</bouncycastle.version>
-        <nimbus.version>4.11</nimbus.version>
+        <nimbus.version>4.18</nimbus.version>
         <jackson.version>2.7.0</jackson.version>
         <apachecommons.version>1.10</apachecommons.version>
         <guava.version>r03</guava.version>
