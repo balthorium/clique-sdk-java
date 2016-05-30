@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
 import com.nimbusds.jose.jwk.ECKey;
 
@@ -11,9 +12,9 @@ public interface Transport {
 
     ECKey getKey(String pkt) throws Exception;
 
-    void putChain(AbstractChain chain) throws Exception;
+    void putChain(AbstractChain<? extends AbstractBlock> chain) throws Exception;
 
-    AbstractChain getChain(URI subject) throws Exception;
+    AbstractChain<? extends AbstractBlock> getChain(URI subject) throws Exception;
 
     void clear();
 }

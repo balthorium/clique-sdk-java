@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
 import com.cisco.clique.sdk.chains.JsonMapperFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +16,7 @@ public class MemoryTransport implements Transport {
 
     protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     Map<String, ECKey> _keys;
-    Map<URI, AbstractChain> _chains;
+    Map<URI, AbstractChain<? extends AbstractBlock>> _chains;
 
     public MemoryTransport() {
         _keys = new HashMap<>();
@@ -33,12 +34,12 @@ public class MemoryTransport implements Transport {
     }
 
     @Override
-    public void putChain(AbstractChain chain) throws Exception {
+    public void putChain(AbstractChain<? extends AbstractBlock> chain) throws Exception {
         _chains.put(chain.getSubject(), chain);
     }
 
     @Override
-    public AbstractChain getChain(URI subject) {
+    public AbstractChain<? extends AbstractBlock> getChain(URI subject) {
         return _chains.get(subject);
     }
 
