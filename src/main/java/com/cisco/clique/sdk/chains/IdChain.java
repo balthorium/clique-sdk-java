@@ -27,7 +27,7 @@ public class IdChain extends AbstractChain<IdBlock> {
         _pkts = new HashSet<>();
     }
 
-    public void addBlock(IdBlock block) throws Exception {
+    void addBlock(IdBlock block) throws Exception {
         super.addBlock(block);
         _pkts.add(block.getPkt());
     }
@@ -47,7 +47,7 @@ public class IdChain extends AbstractChain<IdBlock> {
         return _blocks.get(_blocks.size() - 1).getPkt();
     }
 
-    public IdBlock.Builder newBuilder() {
+    public IdBlock.Builder newBlockBuilder() {
         return new IdBlock.Builder(this);
     }
 }

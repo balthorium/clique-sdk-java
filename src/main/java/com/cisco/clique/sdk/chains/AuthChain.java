@@ -42,7 +42,7 @@ public class AuthChain extends AbstractChain<AuthBlock> {
         return false;
     }
 
-    public AuthBlock.Builder newBuilder() {
+    public AuthBlock.Builder newBlockBuilder() {
         return new AuthBlock.Builder(this);
     }
 }

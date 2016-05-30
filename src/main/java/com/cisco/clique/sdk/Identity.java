@@ -21,7 +21,7 @@ public class Identity extends PublicIdentity {
     Identity(Identity mint, URI acct) throws Exception {
         ECKey key = createNewKeyPair();
         _idChain = new IdChain();
-        _idChain.newBuilder()
+        _idChain.newBlockBuilder()
                 .setIssuer((null != mint) ? mint.getAcct() : acct)
                 .setIssuerKey((null != mint) ? mint.getActiveKeyPair() : key)
                 .setSubject(acct)
@@ -46,7 +46,7 @@ public class Identity extends PublicIdentity {
 
     public ECKey rotateKeyPair() throws Exception {
         ECKey key = createNewKeyPair();
-        _idChain.newBuilder()
+        _idChain.newBlockBuilder()
                 .setIssuer(_idChain.getSubject())
                 .setIssuerKey(getActiveKeyPair())
                 .setSubject(_idChain.getSubject())

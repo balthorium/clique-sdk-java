@@ -70,7 +70,7 @@ public class Policy {
         }
 
         PolicyBuilder(Identity issuer) throws Exception {
-            _blockBuilder = _authChain.newBuilder()
+            _blockBuilder = _authChain.newBlockBuilder()
                     .setIssuer(issuer.getAcct())
                     .setIssuerKey(issuer.getActiveKeyPair());
         }
