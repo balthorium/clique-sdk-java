@@ -1,7 +1,8 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.IdBlock;
 import com.cisco.clique.sdk.chains.IdChain;
-import com.cisco.clique.sdk.validation.IdBlockValidator;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,9 +20,10 @@ public class Identity extends PublicIdentity {
 
     private Map<String, ECKey> _keyPairs;
 
-    Identity(Identity mint, URI acct) throws Exception {
+    Identity(AbstractValidator<IdBlock> validator, Identity mint, URI acct) throws Exception {
+        super(validator.getTransport());
         ECKey key = createNewKeyPair();
-        _idChain = new IdChain(new IdBlockValidator());
+        _idChain = new IdChain(validator);
         _idChain.newBlockBuilder()
                 .setIssuer((null != mint) ? mint.getAcct() : acct)
                 .setIssuerKey((null != mint) ? mint.getActiveKeyPair() : key)
@@ -31,8 +33,8 @@ public class Identity extends PublicIdentity {
         _transport.putChain(_idChain);
     }
 
-    public Identity(String serialization) throws Exception {
-        super(serialization);
+    public Identity(AbstractValidator<IdBlock> validator, String serialization) throws Exception {
+        super(validator.getTransport(), serialization);
     }
 
     private void storeKeyPair(ECKey key) throws Exception {

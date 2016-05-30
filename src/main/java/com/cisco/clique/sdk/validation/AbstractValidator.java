@@ -1,12 +1,13 @@
 package com.cisco.clique.sdk.validation;
 
-import com.cisco.clique.sdk.Clique;
 import com.cisco.clique.sdk.Transport;
 import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class AbstractValidator<T extends AbstractBlock> {
 
@@ -14,15 +15,30 @@ public abstract class AbstractValidator<T extends AbstractBlock> {
     protected URI _chainIssuer;
     protected URI _chainSubject;
     protected Transport _transport;
+    Set<String> _trustRoots;
 
-    public AbstractValidator() {
-        _transport = Clique.getInstance().getTransport();
+    public AbstractValidator(Transport transport) {
+        _transport = transport;
+        _trustRoots = new HashSet<>();
+    }
+
+    public AbstractValidator(Transport transport, Set<String> trustRoots) {
+        _transport = transport;
+        _trustRoots = trustRoots;
+    }
+
+    public void addTrustRoot(String trustRoot) {
+        _trustRoots.add(trustRoot);
     }
 
     public void reset() {
         _lastValidated = null;
         _chainIssuer = null;
         _chainSubject = null;
+    }
+
+    public Transport getTransport() {
+        return _transport;
     }
 
     public T lastValidatedBlock() {
@@ -35,6 +51,11 @@ public abstract class AbstractValidator<T extends AbstractBlock> {
     }
 
     protected void doValidation(T block) throws Exception {
+
+        if (_trustRoots.contains(block.getHash())) {
+            return;
+        }
+
         validateSignature(block);
 
         if (null == _lastValidated) {

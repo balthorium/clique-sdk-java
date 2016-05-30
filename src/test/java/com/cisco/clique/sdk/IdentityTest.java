@@ -22,7 +22,7 @@ public class IdentityTest {
     @BeforeTest
     public void suiteSetUp() {
         Security.addProvider(new BouncyCastleProvider());
-        _clique = Clique.getInstance();
+        _clique = new Clique();
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");
         _bobUri = URI.create("uri:clique:bob");
@@ -183,7 +183,7 @@ public class IdentityTest {
         assertNotNull(alicePublic1);
         String alicePublicSerialized = alicePublic1.serialize();
         assertNotNull(alicePublicSerialized);
-        PublicIdentity alicePublic2 = new PublicIdentity(alicePublicSerialized);
+        PublicIdentity alicePublic2 = _clique.deserializePublicIdentity(alicePublicSerialized);
         assertEquals(alicePublic2, alicePublic1);
     }
 
@@ -192,7 +192,7 @@ public class IdentityTest {
         Identity alice1 = _clique.createIdentity(_clique.createIdentity(_mintUri), _aliceUri);
         String aliceSerialized = alice1.serialize();
         assertNotNull(aliceSerialized);
-        Identity alice2 = new Identity(aliceSerialized);
+        Identity alice2 = _clique.deserializeIdentity(aliceSerialized);
         assertEquals(alice2, alice1);
     }
 

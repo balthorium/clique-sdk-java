@@ -22,7 +22,7 @@ public class PolicyTest {
     @BeforeTest
     public void suiteSetUp() {
         Security.addProvider(new BouncyCastleProvider());
-        _clique = Clique.getInstance();
+        _clique = new Clique();
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");
         _bobUri = URI.create("uri:clique:bob");
@@ -157,7 +157,7 @@ public class PolicyTest {
 
         String policySerialized = policy1.serialize();
         assertNotNull(policySerialized);
-        Policy policy2 = new Policy(policySerialized);
+        Policy policy2 = _clique.deserializePolicy(policySerialized);
         assertEquals(policy2, policy1);
 
         assertTrue(policy2.hasPrivilege(_alice, _readPrivilege));

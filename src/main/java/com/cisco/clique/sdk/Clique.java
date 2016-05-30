@@ -4,6 +4,7 @@ import com.cisco.clique.sdk.chains.AbstractChain;
 import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.cisco.clique.sdk.validation.AuthBlockValidator;
+import com.cisco.clique.sdk.validation.IdBlockValidator;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -14,13 +15,14 @@ public class Clique {
     public Transport _transport;
     private Set<String> _trustRoots;
 
-    private Clique(Transport transport, Set<String> trustRoots) {
-        _transport = transport;
-        _trustRoots = trustRoots;
+    public Clique() {
+        _transport = new MemoryTransport();
+        _trustRoots = new HashSet<>();
     }
 
-    public static Clique getInstance() {
-        return CliqueFactorySingleton.INSTANCE;
+    public Clique(Transport transport, Set<String> trustRoots) {
+        _transport = transport;
+        _trustRoots = trustRoots;
     }
 
     public Transport setTransport(Transport transport) {
@@ -50,7 +52,7 @@ public class Clique {
         if (null != _transport.getChain(acct)) {
             throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
-        return new Identity(null, acct);
+        return new Identity(new IdBlockValidator(_transport, _trustRoots), null, acct);
     }
 
     public Identity createIdentity(Identity mint, URI acct) throws Exception {
@@ -63,7 +65,14 @@ public class Clique {
         if (null != _transport.getChain(acct)) {
             throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
-        return new Identity(mint, acct);
+        return new Identity(new IdBlockValidator(_transport, _trustRoots), mint, acct);
+    }
+
+    public Identity deserializeIdentity(String serialization) throws Exception {
+        if (null == serialization) {
+            throw new IllegalArgumentException("serialization must be non-null");
+        }
+        return new Identity(new IdBlockValidator(_transport, _trustRoots), serialization);
     }
 
     public PublicIdentity getPublicIdentity(URI acct) throws Exception {
@@ -78,14 +87,28 @@ public class Clique {
             throw new IllegalArgumentException(acct.toString() + " is published but not as an identity chain");
         }
         chain.validate();
-        return new PublicIdentity((IdChain) chain);
+        return new PublicIdentity(_transport, (IdChain) chain);
+    }
+
+    public PublicIdentity deserializePublicIdentity(String serialization) throws Exception {
+        if (null == serialization) {
+            throw new IllegalArgumentException("serialization must be non-null");
+        }
+        return new PublicIdentity(_transport, serialization);
     }
 
     public Policy.PolicyBuilder createPolicy(Identity issuer, URI resource) throws Exception {
         if (null == issuer || null == resource) {
             throw new IllegalArgumentException("the issuer and resource URI must both be non-null");
         }
-        return new Policy(new AuthChain(new AuthBlockValidator())).new PolicyBuilder(issuer, resource);
+        return new Policy(new AuthChain(new AuthBlockValidator(_transport))).new PolicyBuilder(issuer, resource);
+    }
+
+    public Policy deserializePolicy(String serialization) throws Exception {
+        if (null == serialization) {
+            throw new IllegalArgumentException("serialization must be non-null");
+        }
+        return new Policy(new AuthBlockValidator(_transport), serialization);
     }
 
     public Policy getPolicy(URI resource) throws Exception {
@@ -101,9 +124,5 @@ public class Clique {
         }
         chain.validate();
         return new Policy((AuthChain) chain);
-    }
-
-    private static class CliqueFactorySingleton {
-        private static final Clique INSTANCE = new Clique(new MemoryTransport(), new HashSet<String>());
     }
 }

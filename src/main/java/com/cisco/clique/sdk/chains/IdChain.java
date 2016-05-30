@@ -1,6 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.validation.IdBlockValidator;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,12 +9,12 @@ public class IdChain extends AbstractChain<IdBlock> {
 
     private Set<String> _pkts;
 
-    public IdChain(IdBlockValidator validator) {
+    public IdChain(AbstractValidator<IdBlock> validator) {
         super(validator);
         _pkts = new HashSet<>();
     }
 
-    public IdChain(IdBlockValidator validator, String serialization) throws Exception {
+    public IdChain(AbstractValidator<IdBlock> validator, String serialization) throws Exception {
         super(validator, serialization);
         _pkts = new HashSet<>();
     }

@@ -21,7 +21,7 @@ public class MemoryTransportTest {
     @BeforeTest
     public void suiteSetUp() {
         Security.addProvider(new BouncyCastleProvider());
-        _clique = Clique.getInstance();
+        _clique = new Clique();
         _mintUri = URI.create("uri:clique:mint");
         _aliceUri = URI.create("uri:clique:alice");
         _bobUri = URI.create("uri:clique:bob");

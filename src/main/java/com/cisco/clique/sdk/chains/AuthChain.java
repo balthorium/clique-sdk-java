@@ -1,17 +1,17 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.validation.AuthBlockValidator;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 
 import java.net.URI;
 import java.util.ListIterator;
 
 public class AuthChain extends AbstractChain<AuthBlock> {
 
-    public AuthChain(AuthBlockValidator validator) {
+    public AuthChain(AbstractValidator<AuthBlock> validator) {
         super(validator);
     }
 
-    public AuthChain(AuthBlockValidator validator, String serialization) throws Exception {
+    public AuthChain(AbstractValidator<AuthBlock> validator, String serialization) throws Exception {
         super(validator, serialization);
     }
 

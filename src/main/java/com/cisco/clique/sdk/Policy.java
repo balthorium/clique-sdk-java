@@ -2,7 +2,7 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.AuthChain;
-import com.cisco.clique.sdk.validation.AuthBlockValidator;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 
 import java.net.URI;
 
@@ -12,12 +12,13 @@ public class Policy {
     private Transport _transport;
 
     Policy(AuthChain chain) throws Exception {
+        _transport = chain.getValidator().getTransport();
         _authChain = chain;
-        _transport = Clique.getInstance().getTransport();
     }
 
-    public Policy(String serialization) throws Exception {
-        _authChain = new AuthChain(new AuthBlockValidator(), serialization);
+    public Policy(AbstractValidator<AuthBlock> validator, String serialization) throws Exception {
+        _transport = validator.getTransport();
+        _authChain = new AuthChain(validator, serialization);
     }
 
     public PolicyBuilder update(Identity issuer) throws Exception {

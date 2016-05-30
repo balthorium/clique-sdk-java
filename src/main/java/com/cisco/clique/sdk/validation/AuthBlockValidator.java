@@ -1,5 +1,6 @@
 package com.cisco.clique.sdk.validation;
 
+import com.cisco.clique.sdk.Transport;
 import com.cisco.clique.sdk.chains.AuthBlock;
 
 import java.net.URI;
@@ -10,7 +11,8 @@ public class AuthBlockValidator extends AbstractValidator<AuthBlock> {
 
     private Map<URI, Map<String, AuthBlock.Grant.Type>> _currentGrants;
 
-    public AuthBlockValidator() {
+    public AuthBlockValidator(Transport transport) {
+        super(transport);
         _currentGrants = new HashMap<>();
     }
 

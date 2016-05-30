@@ -10,21 +10,21 @@ import java.net.URI;
 public class PublicIdentity {
 
     protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
-    protected IdChain _idChain;
     protected Transport _transport;
+    protected IdChain _idChain;
 
-    protected PublicIdentity() {
+    protected PublicIdentity(Transport transport) {
+        _transport = transport;
         _idChain = null;
-        _transport = Clique.getInstance().getTransport();
     }
 
-    PublicIdentity(IdChain chain) throws Exception {
+    PublicIdentity(Transport transport, IdChain chain) throws Exception {
+        _transport = transport;
         _idChain = chain;
-        _transport = Clique.getInstance().getTransport();
     }
 
-    public PublicIdentity(String serialization) throws Exception {
-        _transport = Clique.getInstance().getTransport();
+    public PublicIdentity(Transport transport, String serialization) throws Exception {
+        _transport = transport;
         deserializeFromJson((ObjectNode) _mapper.readTree(serialization));
     }
 

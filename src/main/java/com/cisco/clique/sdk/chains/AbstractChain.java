@@ -32,6 +32,10 @@ public abstract class AbstractChain<T extends AbstractBlock> {
         }
     }
 
+    public AbstractValidator<T> getValidator() {
+        return _validator;
+    }
+
     public List<? extends AbstractBlock> getBlocks() {
         return _blocks;
     }
