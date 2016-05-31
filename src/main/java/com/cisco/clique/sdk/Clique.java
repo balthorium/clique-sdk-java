@@ -50,7 +50,7 @@ public class Clique {
         if (null == acct) {
             throw new IllegalArgumentException("acct URI cannot be null");
         }
-        if (null != _transport.getChain(acct)) {
+        if (null != _transport.getChain(new IdBlockValidator(_transport, _trustRoots), acct)) {
             throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
         return new Identity(new IdBlockValidator(_transport, _trustRoots), null, acct);
@@ -60,10 +60,10 @@ public class Clique {
         if (null == mint || null == acct) {
             throw new IllegalArgumentException("mint and acct URIs must both be non-null");
         }
-        if (null == _transport.getChain(mint.getAcct())) {
+        if (null == _transport.getChain(new IdBlockValidator(_transport, _trustRoots), mint.getAcct())) {
             throw new IllegalArgumentException("an identity chain could not be found for " + acct.toString());
         }
-        if (null != _transport.getChain(acct)) {
+        if (null != _transport.getChain(new IdBlockValidator(_transport, _trustRoots), acct)) {
             throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
         return new Identity(new IdBlockValidator(_transport, _trustRoots), mint, acct);
@@ -80,7 +80,7 @@ public class Clique {
         if (null == acct) {
             throw new IllegalArgumentException("the acct URI must be non-null");
         }
-        AbstractChain chain = _transport.getChain(acct);
+        AbstractChain chain = _transport.getChain(new IdBlockValidator(_transport, _trustRoots), acct);
         if (null == chain) {
             throw new IllegalArgumentException("no published identity chain found for " + acct.toString());
         }
@@ -88,42 +88,43 @@ public class Clique {
             throw new IllegalArgumentException(acct.toString() + " is published but not as an identity chain");
         }
         chain.validate();
-        return new PublicIdentity(_transport, (IdChain) chain);
+        return new PublicIdentity((IdChain) chain);
     }
 
     public PublicIdentity deserializePublicIdentity(String serialization) throws Exception {
         if (null == serialization) {
             throw new IllegalArgumentException("serialization must be non-null");
         }
-        return new PublicIdentity(_transport, serialization);
+        return new PublicIdentity(new IdBlockValidator(_transport, _trustRoots), serialization);
     }
 
     public Policy.PolicyBuilder createPolicy(Identity issuer, URI resource) throws Exception {
         if (null == issuer || null == resource) {
             throw new IllegalArgumentException("the issuer and resource URI must both be non-null");
         }
-        return new Policy(new AuthChain(new AuthBlockValidator(_transport))).new PolicyBuilder(issuer, resource);
+        return new Policy(
+                new AuthChain(new AuthBlockValidator(_transport, _trustRoots))).new PolicyBuilder(issuer, resource);
     }
 
     public Policy deserializePolicy(String serialization) throws Exception {
         if (null == serialization) {
             throw new IllegalArgumentException("serialization must be non-null");
         }
-        return new Policy(new AuthBlockValidator(_transport), serialization);
+        return new Policy(new AuthBlockValidator(_transport, _trustRoots), serialization);
     }
 
     public Policy deserializePolicy(ArrayNode array) throws Exception {
         if (null == array) {
             throw new IllegalArgumentException("json array must be non-null");
         }
-        return new Policy(new AuthBlockValidator(_transport), array);
+        return new Policy(new AuthBlockValidator(_transport, _trustRoots), array);
     }
 
     public Policy getPolicy(URI resource) throws Exception {
         if (null == resource) {
             throw new IllegalArgumentException("the resource URI must be non-null");
         }
-        AbstractChain chain = _transport.getChain(resource);
+        AbstractChain chain = _transport.getChain(new AuthBlockValidator(_transport, _trustRoots), resource);
         if (null == chain) {
             throw new IllegalArgumentException("no published auth chain found for " + resource.toString());
         }

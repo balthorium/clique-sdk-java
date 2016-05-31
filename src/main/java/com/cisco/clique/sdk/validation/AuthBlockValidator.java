@@ -6,13 +6,14 @@ import com.cisco.clique.sdk.chains.AuthBlock;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class AuthBlockValidator extends AbstractValidator<AuthBlock> {
 
     private Map<URI, Map<String, AuthBlock.Grant.Type>> _currentGrants;
 
-    public AuthBlockValidator(Transport transport) {
-        super(transport);
+    public AuthBlockValidator(Transport transport, Set<String> trustRoots) {
+        super(transport, trustRoots);
         _currentGrants = new HashMap<>();
     }
 

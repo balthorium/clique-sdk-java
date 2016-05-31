@@ -6,7 +6,6 @@ import com.cisco.clique.sdk.chains.IdChain;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
-import java.util.HashSet;
 import java.util.Set;
 
 public abstract class AbstractValidator<T extends AbstractBlock> {
@@ -17,11 +16,6 @@ public abstract class AbstractValidator<T extends AbstractBlock> {
     protected Transport _transport;
     Set<String> _trustRoots;
 
-    public AbstractValidator(Transport transport) {
-        _transport = transport;
-        _trustRoots = new HashSet<>();
-    }
-
     public AbstractValidator(Transport transport, Set<String> trustRoots) {
         _transport = transport;
         _trustRoots = trustRoots;
@@ -29,6 +23,10 @@ public abstract class AbstractValidator<T extends AbstractBlock> {
 
     public void addTrustRoot(String trustRoot) {
         _trustRoots.add(trustRoot);
+    }
+
+    public Set<String> getTrustRoots() {
+        return _trustRoots;
     }
 
     public void reset() {
@@ -132,7 +130,7 @@ public abstract class AbstractValidator<T extends AbstractBlock> {
         }
 
         // get the issuer's identity chain from transport/cache
-        IdChain issuerChain = (IdChain) _transport.getChain(issuerUri);
+        IdChain issuerChain = (IdChain) _transport.getChain(new IdBlockValidator(_transport, _trustRoots), issuerUri);
         if (null == issuerChain) {
             throw new InvalidBlockException("block issuer's identity chain could not be found");
         }

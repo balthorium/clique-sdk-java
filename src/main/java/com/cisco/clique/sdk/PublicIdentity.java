@@ -1,6 +1,9 @@
 package com.cisco.clique.sdk;
 
+import com.cisco.clique.sdk.chains.IdBlock;
 import com.cisco.clique.sdk.chains.IdChain;
+import com.cisco.clique.sdk.validation.AbstractValidator;
+import com.cisco.clique.sdk.validation.IdBlockValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -10,22 +13,17 @@ import java.net.URI;
 public class PublicIdentity {
 
     protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
-    protected Transport _transport;
     protected IdChain _idChain;
 
-    protected PublicIdentity(Transport transport) {
-        _transport = transport;
-        _idChain = null;
+    PublicIdentity() {
     }
 
-    PublicIdentity(Transport transport, IdChain chain) throws Exception {
-        _transport = transport;
+    PublicIdentity(IdChain chain) throws Exception {
         _idChain = chain;
     }
 
-    public PublicIdentity(Transport transport, String serialization) throws Exception {
-        _transport = transport;
-        deserializeFromJson((ObjectNode) _mapper.readTree(serialization));
+    public PublicIdentity(AbstractValidator<IdBlock> validator, String serialization) throws Exception {
+        deserializeFromJson(validator, (ObjectNode) _mapper.readTree(serialization));
     }
 
     public URI getAcct() throws Exception {
@@ -35,13 +33,13 @@ public class PublicIdentity {
     public ECKey getPublicKey(String pkt) throws Exception {
         ECKey retval = null;
         if (_idChain.containsPkt(pkt)) {
-            retval = _transport.getKey(pkt);
+            retval = _idChain.getValidator().getTransport().getKey(pkt);
         }
         return retval;
     }
 
     public ECKey getActivePublicKey() throws Exception {
-        return _transport.getKey(_idChain.getActivePkt());
+        return _idChain.getValidator().getTransport().getKey(_idChain.getActivePkt());
     }
 
     void resetValidator() {
@@ -58,8 +56,8 @@ public class PublicIdentity {
         return json;
     }
 
-    protected void deserializeFromJson(ObjectNode json) throws Exception {
-        _idChain = (IdChain) _transport.getChain(URI.create(json.findPath("acct").asText()));
+    protected void deserializeFromJson(AbstractValidator<IdBlock> validator, ObjectNode json) throws Exception {
+        _idChain = (IdChain) validator.getTransport().getChain(validator, URI.create(json.findPath("acct").asText()));
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 import com.nimbusds.jose.jwk.ECKey;
 
 import java.net.URI;
@@ -14,7 +15,7 @@ public interface Transport {
 
     void putChain(AbstractChain<? extends AbstractBlock> chain) throws Exception;
 
-    AbstractChain<? extends AbstractBlock> getChain(URI subject) throws Exception;
+    AbstractChain<? extends AbstractBlock> getChain(AbstractValidator validator, URI subject) throws Exception;
 
     void clear();
 }

@@ -10,20 +10,16 @@ import java.net.URI;
 public class Policy {
 
     private AuthChain _authChain;
-    private Transport _transport;
 
     Policy(AuthChain chain) throws Exception {
-        _transport = chain.getValidator().getTransport();
         _authChain = chain;
     }
 
     public Policy(AbstractValidator<AuthBlock> validator, ArrayNode array) throws Exception {
-        _transport = validator.getTransport();
         _authChain = new AuthChain(validator, array);
     }
 
     public Policy(AbstractValidator<AuthBlock> validator, String serialization) throws Exception {
-        _transport = validator.getTransport();
         _authChain = new AuthChain(validator, serialization);
     }
 
@@ -100,7 +96,7 @@ public class Policy {
 
         public Policy build() throws Exception {
             _blockBuilder.build();
-            _transport.putChain(_authChain);
+            _authChain.getValidator().getTransport().putChain(_authChain);
             return Policy.this;
         }
     }

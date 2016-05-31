@@ -21,20 +21,19 @@ public class Identity extends PublicIdentity {
     private Map<String, ECKey> _keyPairs;
 
     Identity(AbstractValidator<IdBlock> validator, Identity mint, URI acct) throws Exception {
-        super(validator.getTransport());
-        ECKey key = createNewKeyPair();
         _idChain = new IdChain(validator);
+        ECKey key = createNewKeyPair();
         _idChain.newBlockBuilder()
                 .setIssuer((null != mint) ? mint.getAcct() : acct)
                 .setIssuerKey((null != mint) ? mint.getActiveKeyPair() : key)
                 .setSubject(acct)
                 .setSubjectPubKey(key.toPublicJWK())
                 .build();
-        _transport.putChain(_idChain);
+        validator.getTransport().putChain(_idChain);
     }
 
     public Identity(AbstractValidator<IdBlock> validator, String serialization) throws Exception {
-        super(validator.getTransport(), serialization);
+        super(validator, serialization);
     }
 
     private void storeKeyPair(ECKey key) throws Exception {
@@ -55,7 +54,7 @@ public class Identity extends PublicIdentity {
                 .setSubject(_idChain.getSubject())
                 .setSubjectPubKey(key.toPublicJWK())
                 .build();
-        _transport.putChain(_idChain);
+        _idChain.getValidator().getTransport().putChain(_idChain);
         return key;
     }
 
@@ -67,7 +66,7 @@ public class Identity extends PublicIdentity {
         ECKey key = new ECKey.Builder(crv, (ECPublicKey) pair.getPublic())
                 .privateKey((ECPrivateKey) pair.getPrivate())
                 .build();
-        _transport.putKey(key.toPublicJWK());
+        _idChain.getValidator().getTransport().putKey(key.toPublicJWK());
         storeKeyPair(key);
         return key;
     }
@@ -94,8 +93,8 @@ public class Identity extends PublicIdentity {
         return json;
     }
 
-    protected void deserializeFromJson(ObjectNode json) throws Exception {
-        super.deserializeFromJson(json);
+    protected void deserializeFromJson(AbstractValidator<IdBlock> validator, ObjectNode json) throws Exception {
+        super.deserializeFromJson(validator, json);
         ArrayNode array = (ArrayNode) json.findPath("keys");
         for (JsonNode node : array) {
             storeKeyPair(ECKey.parse(_mapper.writeValueAsString(node)));

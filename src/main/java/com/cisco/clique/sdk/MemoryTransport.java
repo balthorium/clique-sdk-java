@@ -2,6 +2,7 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
+import com.cisco.clique.sdk.validation.AbstractValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -38,7 +39,7 @@ public class MemoryTransport implements Transport {
     }
 
     @Override
-    public AbstractChain<? extends AbstractBlock> getChain(URI subject) {
+    public AbstractChain<? extends AbstractBlock> getChain(AbstractValidator validator, URI subject) {
         return _chains.get(subject);
     }
 
