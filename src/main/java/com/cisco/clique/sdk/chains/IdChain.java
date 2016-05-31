@@ -1,6 +1,7 @@
 package com.cisco.clique.sdk.chains;
 
 import com.cisco.clique.sdk.validation.AbstractValidator;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,11 @@ public class IdChain extends AbstractChain<IdBlock> {
 
     public IdChain(AbstractValidator<IdBlock> validator) {
         super(validator);
+        _pkts = new HashSet<>();
+    }
+
+    public IdChain(AbstractValidator<IdBlock> validator, ArrayNode array) throws Exception {
+        super(validator, array);
         _pkts = new HashSet<>();
     }
 

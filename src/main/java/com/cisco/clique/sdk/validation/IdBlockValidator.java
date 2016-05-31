@@ -8,6 +8,10 @@ import java.util.Set;
 
 public class IdBlockValidator extends AbstractValidator<IdBlock> {
 
+    public IdBlockValidator(Transport transport) {
+        super(transport);
+    }
+
     public IdBlockValidator(Transport transport, Set<String> trustRoots) {
         super(transport, trustRoots);
     }

@@ -1,6 +1,8 @@
 package com.cisco.clique.sdk.chains;
 
 import com.cisco.clique.sdk.validation.AbstractValidator;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.net.URI;
 import java.util.ListIterator;
@@ -9,6 +11,10 @@ public class AuthChain extends AbstractChain<AuthBlock> {
 
     public AuthChain(AbstractValidator<AuthBlock> validator) {
         super(validator);
+    }
+
+    public AuthChain(AbstractValidator<AuthBlock> validator, ArrayNode array) throws Exception {
+        super(validator, array);
     }
 
     public AuthChain(AbstractValidator<AuthBlock> validator, String serialization) throws Exception {

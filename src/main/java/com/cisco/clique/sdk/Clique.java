@@ -5,6 +5,7 @@ import com.cisco.clique.sdk.chains.AuthChain;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.cisco.clique.sdk.validation.AuthBlockValidator;
 import com.cisco.clique.sdk.validation.IdBlockValidator;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.net.URI;
 import java.util.HashSet;
@@ -109,6 +110,13 @@ public class Clique {
             throw new IllegalArgumentException("serialization must be non-null");
         }
         return new Policy(new AuthBlockValidator(_transport), serialization);
+    }
+
+    public Policy deserializePolicy(ArrayNode array) throws Exception {
+        if (null == array) {
+            throw new IllegalArgumentException("json array must be non-null");
+        }
+        return new Policy(new AuthBlockValidator(_transport), array);
     }
 
     public Policy getPolicy(URI resource) throws Exception {

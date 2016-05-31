@@ -21,6 +21,16 @@ public abstract class AbstractChain<T extends AbstractBlock> {
         _blocks = new ArrayList<>();
     }
 
+    protected AbstractChain(AbstractValidator<T> validator, ArrayNode array) throws Exception {
+        this(validator);
+        if (null == array) {
+            throw new IllegalArgumentException();
+        }
+        for (JsonNode object : array) {
+            addBlock(object.asText());
+        }
+    }
+
     protected AbstractChain(AbstractValidator<T> validator, String serialization) throws Exception {
         this(validator);
         if (null == serialization) {
