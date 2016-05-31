@@ -51,6 +51,7 @@ public abstract class AbstractChain<T extends AbstractBlock> {
     }
 
     void addBlock(T block) throws Exception {
+        validate();
         _validator.validate(block);
         _blocks.add(block);
     }

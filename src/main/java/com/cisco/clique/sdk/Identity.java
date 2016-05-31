@@ -37,9 +37,6 @@ public class Identity extends PublicIdentity {
     }
 
     private void storeKeyPair(ECKey key) throws Exception {
-        if (null == key) {
-            throw new IllegalArgumentException("key must be non-null");
-        }
         if (null == _keyPairs) {
             _keyPairs = new HashMap<>();
         }

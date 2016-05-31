@@ -1,10 +1,13 @@
 package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.validation.InvalidBlockException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.testng.internal.ClonedMethod;
 
 import java.net.URI;
 import java.security.Security;
@@ -18,6 +21,7 @@ public class PolicyTest {
     Identity _alice, _bob, _chuck, _diane;
     String _readPrivilege;
     String _writePrivilege;
+    ObjectMapper _mapper;
 
     @BeforeTest
     public void suiteSetUp() {
@@ -31,6 +35,8 @@ public class PolicyTest {
         _resourceUri = URI.create("uri:some:protected:resource");
         _readPrivilege = "read";
         _writePrivilege = "write";
+        _mapper = JsonMapperFactory.getInstance().createMapper();
+
     }
 
     @BeforeMethod
@@ -159,6 +165,9 @@ public class PolicyTest {
         assertNotNull(policySerialized);
         Policy policy2 = _clique.deserializePolicy(policySerialized);
         assertEquals(policy2, policy1);
+        ArrayNode array = (ArrayNode) _mapper.readTree(policySerialized);
+        Policy policy3 = _clique.deserializePolicy(array);
+        assertEquals(policy3, policy1);
 
         assertTrue(policy2.hasPrivilege(_alice, _readPrivilege));
         assertTrue(policy2.hasPrivilege(_alice, _writePrivilege));
@@ -206,6 +215,18 @@ public class PolicyTest {
     }
 
     @Test
+    public void updateBadPolicyTest() throws Exception {
+        final Policy policy = _clique.createPolicy(_alice, _resourceUri).build();
+        assertNotNull(policy);
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                policy.update(null).build();
+            }
+        });
+    }
+
+    @Test
     public void getBadPolicyTest() throws Exception {
 
         assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
@@ -229,4 +250,76 @@ public class PolicyTest {
             }
         });
     }
+
+    @Test
+    public void hashCodeEqualsAndToStringTest() throws Exception {
+        Policy policy1 = _clique.createPolicy(_alice, _resourceUri)
+                .viralGrant(_alice, _readPrivilege)
+                .viralGrant(_alice, _writePrivilege)
+                .viralGrant(_bob, _readPrivilege)
+                .grant(_bob, _writePrivilege)
+                .build();
+
+        assertNotNull(policy1);
+
+        policy1.update(_bob)
+                .viralGrant(_chuck, _readPrivilege)
+                .grant(_diane, _readPrivilege)
+                .build();
+
+        Policy policy2 = policy1;
+        assertEquals(policy2.hashCode(), policy1.hashCode());
+        assertTrue(policy1.equals(policy2));
+        assertFalse(policy1.equals("dog"));
+        assertNotNull(policy1.toString());
+    }
+
+    @Test
+    public void resetValidatorTest() throws Exception {
+        final Policy policy = _clique.createPolicy(_alice, _resourceUri)
+                .viralGrant(_bob, _readPrivilege)
+                .build();
+
+        assertNotNull(policy);
+
+        policy.update(_bob)
+                .viralGrant(_chuck, _readPrivilege)
+                .build();
+
+        policy.resetValidator();
+
+        policy.update(_chuck)
+                .viralGrant(_diane, _readPrivilege)
+                .build();
+
+        // clearing the memory transport and resetting the validator should make the policy un-validatable
+        _clique.getTransport().clear();
+        policy.resetValidator();
+
+        assertThrows(InvalidBlockException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                policy.update(_diane)
+                        .viralGrant(_alice, _readPrivilege)
+                        .build();
+            }
+        });
+    }
+
+    @Test
+    public void badDeserializePolicy() throws Exception {
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.deserializePolicy((String) null);
+            }
+        });
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.deserializePolicy((ArrayNode) null);
+            }
+        });
+    }
+
 }

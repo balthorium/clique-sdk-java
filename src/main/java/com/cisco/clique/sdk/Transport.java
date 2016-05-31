@@ -15,7 +15,7 @@ public interface Transport {
 
     void putChain(AbstractChain<? extends AbstractBlock> chain) throws Exception;
 
-    AbstractChain<? extends AbstractBlock> getChain(AbstractValidator validator, URI subject) throws Exception;
+    <T extends AbstractBlock> AbstractChain<T> getChain(AbstractValidator<T> validator, URI uri) throws Exception;
 
     void clear();
 }

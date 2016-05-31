@@ -7,7 +7,10 @@ import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.security.Security;
+import java.util.HashSet;
+import java.util.Set;
 
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
@@ -32,6 +35,15 @@ public class MemoryTransportTest {
     public void testSetUp() {
         _clique.getTransport().clear();
         _clique.getTrustRoots().clear();
+    }
+
+    @Test
+    public void nonDefaultTransportAndTrustRootsTest() throws Exception {
+        Transport transport = new MemoryTransport();
+        Set<String> trustRoots = new HashSet<>();
+        Clique clique = new Clique(transport, trustRoots);
+        assertEquals(transport, clique.getTransport());
+        assertEquals(trustRoots, clique.getTrustRoots());
     }
 
     @Test

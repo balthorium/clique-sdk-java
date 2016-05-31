@@ -311,4 +311,31 @@ public class IdentityTest {
             }
         });
     }
+
+    @Test
+    public void hashCodeEqualsAndToStringTest() throws Exception {
+        Identity identity1 = _clique.createIdentity(_aliceUri);
+        assertNotNull(identity1);
+        Identity identity2 = identity1;
+        assertEquals(identity2.hashCode(), identity1.hashCode());
+        assertTrue(identity1.equals(identity2));
+        assertFalse(identity1.equals("dog"));
+        assertNotNull(identity1.toString());
+    }
+
+    @Test
+    public void badDeserializeIdentity() throws Exception {
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.deserializeIdentity(null);
+            }
+        });
+        assertThrows(IllegalArgumentException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                _clique.deserializePublicIdentity(null);
+            }
+        });
+    }
 }
