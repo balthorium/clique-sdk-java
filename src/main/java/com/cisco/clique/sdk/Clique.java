@@ -50,7 +50,7 @@ public class Clique {
         if (null == acct) {
             throw new IllegalArgumentException("acct URI cannot be null");
         }
-        if (null != _transport.getChain(new IdBlockValidator(_transport, _trustRoots), acct)) {
+        if (null != _transport.getIdChain(new IdBlockValidator(_transport, _trustRoots), acct)) {
             throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
         return new Identity(new IdBlockValidator(_transport, _trustRoots), null, acct);
@@ -60,10 +60,10 @@ public class Clique {
         if (null == mint || null == acct) {
             throw new IllegalArgumentException("mint and acct URIs must both be non-null");
         }
-        if (null == _transport.getChain(new IdBlockValidator(_transport, _trustRoots), mint.getAcct())) {
+        if (null == _transport.getIdChain(new IdBlockValidator(_transport, _trustRoots), mint.getAcct())) {
             throw new IllegalArgumentException("an identity chain could not be found for " + acct.toString());
         }
-        if (null != _transport.getChain(new IdBlockValidator(_transport, _trustRoots), acct)) {
+        if (null != _transport.getIdChain(new IdBlockValidator(_transport, _trustRoots), acct)) {
             throw new IllegalArgumentException("an identity chain already exists for " + acct.toString());
         }
         return new Identity(new IdBlockValidator(_transport, _trustRoots), mint, acct);
@@ -80,7 +80,7 @@ public class Clique {
         if (null == acct) {
             throw new IllegalArgumentException("the acct URI must be non-null");
         }
-        AbstractChain chain = _transport.getChain(new IdBlockValidator(_transport, _trustRoots), acct);
+        AbstractChain chain = _transport.getIdChain(new IdBlockValidator(_transport, _trustRoots), acct);
         if (null == chain) {
             throw new IllegalArgumentException("no published identity chain found for " + acct.toString());
         }
@@ -124,7 +124,7 @@ public class Clique {
         if (null == resource) {
             throw new IllegalArgumentException("the resource URI must be non-null");
         }
-        AbstractChain chain = _transport.getChain(new AuthBlockValidator(_transport, _trustRoots), resource);
+        AbstractChain chain = _transport.getAuthChain(new AuthBlockValidator(_transport, _trustRoots), resource);
         if (null == chain) {
             throw new IllegalArgumentException("no published auth chain found for " + resource.toString());
         }

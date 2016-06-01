@@ -2,6 +2,8 @@ package com.cisco.clique.sdk;
 
 import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
+import com.cisco.clique.sdk.chains.AuthBlock;
+import com.cisco.clique.sdk.chains.IdBlock;
 import com.cisco.clique.sdk.validation.AbstractValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,11 +18,13 @@ public class MemoryTransport implements Transport {
 
     protected static final ObjectMapper _mapper = JsonMapperFactory.getInstance().createMapper();
     Map<String, ECKey> _keys;
-    Map<URI, AbstractChain<? extends AbstractBlock>> _chains;
+    Map<URI, AbstractChain<IdBlock>> _idChains;
+    Map<URI, AbstractChain<AuthBlock>> _authChains;
 
     public MemoryTransport() {
         _keys = new HashMap<>();
-        _chains = new HashMap<>();
+        _idChains = new HashMap<>();
+        _authChains = new HashMap<>();
     }
 
     @Override
@@ -34,19 +38,30 @@ public class MemoryTransport implements Transport {
     }
 
     @Override
-    public void putChain(AbstractChain<? extends AbstractBlock> chain) throws Exception {
-        _chains.put(chain.getSubject(), chain);
+    public void putIdChain(AbstractChain<IdBlock> chain) throws Exception {
+        _idChains.put(chain.getSubject(), chain);
     }
 
     @Override
-    public AbstractChain<? extends AbstractBlock> getChain(AbstractValidator validator, URI subject) {
-        return _chains.get(subject);
+    public AbstractChain<IdBlock> getIdChain(AbstractValidator<IdBlock> validator, URI uri) throws Exception {
+        return _idChains.get(uri);
+    }
+
+    @Override
+    public void putAuthChain(AbstractChain<AuthBlock> chain) throws Exception {
+        _authChains.put(chain.getSubject(), chain);
+    }
+
+    @Override
+    public AbstractChain<AuthBlock> getAuthChain(AbstractValidator<AuthBlock> validator, URI uri) throws Exception {
+        return _authChains.get(uri);
     }
 
     @Override
     public void clear() {
         _keys.clear();
-        _chains.clear();
+        _idChains.clear();
+        _authChains.clear();
     }
 
     @Override
@@ -57,8 +72,12 @@ public class MemoryTransport implements Transport {
             for (ECKey key : _keys.values()) {
                 arrayNode.add(_mapper.readTree(key.toPublicJWK().toJSONString()));
             }
-            arrayNode = objectNode.putArray("chains");
-            for (AbstractChain chain : _chains.values()) {
+            arrayNode = objectNode.putArray("idChains");
+            for (AbstractChain chain : _idChains.values()) {
+                arrayNode.add(_mapper.readTree(chain.toString()));
+            }
+            arrayNode = objectNode.putArray("authChains");
+            for (AbstractChain chain : _authChains.values()) {
                 arrayNode.add(_mapper.readTree(chain.toString()));
             }
             return _mapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectNode);

@@ -96,7 +96,7 @@ public class Policy {
 
         public Policy build() throws Exception {
             _blockBuilder.build();
-            _authChain.getValidator().getTransport().putChain(_authChain);
+            _authChain.getValidator().getTransport().putAuthChain(_authChain);
             return Policy.this;
         }
     }

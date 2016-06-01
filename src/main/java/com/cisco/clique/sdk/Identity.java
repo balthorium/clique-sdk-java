@@ -29,7 +29,7 @@ public class Identity extends PublicIdentity {
                 .setSubject(acct)
                 .setSubjectPubKey(key.toPublicJWK())
                 .build();
-        validator.getTransport().putChain(_idChain);
+        validator.getTransport().putIdChain(_idChain);
     }
 
     public Identity(AbstractValidator<IdBlock> validator, String serialization) throws Exception {
@@ -51,7 +51,7 @@ public class Identity extends PublicIdentity {
                 .setSubject(_idChain.getSubject())
                 .setSubjectPubKey(key.toPublicJWK())
                 .build();
-        _idChain.getValidator().getTransport().putChain(_idChain);
+        _idChain.getValidator().getTransport().putIdChain(_idChain);
         return key;
     }
 

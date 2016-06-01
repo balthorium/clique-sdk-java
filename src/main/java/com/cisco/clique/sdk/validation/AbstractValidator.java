@@ -130,7 +130,7 @@ public abstract class AbstractValidator<T extends AbstractBlock> {
         }
 
         // get the issuer's identity chain from transport/cache
-        IdChain issuerChain = (IdChain) _transport.getChain(new IdBlockValidator(_transport, _trustRoots), issuerUri);
+        IdChain issuerChain = (IdChain) _transport.getIdChain(new IdBlockValidator(_transport, _trustRoots), issuerUri);
         if (null == issuerChain) {
             throw new InvalidBlockException("block issuer's identity chain could not be found");
         }

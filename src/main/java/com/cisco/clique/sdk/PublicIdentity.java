@@ -57,7 +57,7 @@ public class PublicIdentity {
     }
 
     protected void deserializeFromJson(AbstractValidator<IdBlock> validator, ObjectNode json) throws Exception {
-        _idChain = (IdChain) validator.getTransport().getChain(validator, URI.create(json.findPath("acct").asText()));
+        _idChain = (IdChain) validator.getTransport().getIdChain(validator, URI.create(json.findPath("acct").asText()));
     }
 
     @Override
