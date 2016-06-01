@@ -12,21 +12,21 @@ public class IdChain extends AbstractChain<IdBlock> {
 
     public IdChain(AbstractValidator<IdBlock> validator) {
         super(validator);
-        _pkts = new HashSet<>();
     }
 
     public IdChain(AbstractValidator<IdBlock> validator, ArrayNode array) throws Exception {
         super(validator, array);
-        _pkts = new HashSet<>();
     }
 
     public IdChain(AbstractValidator<IdBlock> validator, String serialization) throws Exception {
         super(validator, serialization);
-        _pkts = new HashSet<>();
     }
 
     void addBlock(IdBlock block) throws Exception {
         super.addBlock(block);
+        if (null == _pkts) {
+            _pkts = new HashSet<>();
+        }
         _pkts.add(block.getPkt());
     }
 
@@ -34,11 +34,11 @@ public class IdChain extends AbstractChain<IdBlock> {
         addBlock(new IdBlock(serialization));
     }
 
-    public boolean containsPkt(String pkt) {
+    public boolean containsPkt(String pkt) throws Exception {
         if (null == pkt) {
             throw new IllegalArgumentException();
         }
-        return _pkts.contains(pkt);
+        return null != _pkts && _pkts.contains(pkt);
     }
 
     public String getActivePkt() throws Exception {
