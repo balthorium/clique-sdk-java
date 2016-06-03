@@ -26,7 +26,7 @@ public class PublicIdentity {
         deserializeFromJson(validator, (ObjectNode) _mapper.readTree(serialization));
     }
 
-    public URI getAcct() throws Exception {
+    public URI getAcct() {
         return _idChain.getSubject();
     }
 
