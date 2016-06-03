@@ -66,11 +66,11 @@ public abstract class AbstractChain<T extends AbstractBlock> {
         return _blocks.size();
     }
 
-    public URI getIssuer() throws Exception {
+    public URI getIssuer() {
         return (!_blocks.isEmpty()) ? _blocks.get(0).getIssuer() : null;
     }
 
-    public URI getSubject() throws Exception {
+    public URI getSubject() {
         return (!_blocks.isEmpty()) ? _blocks.get(0).getSubject() : null;
     }
 
