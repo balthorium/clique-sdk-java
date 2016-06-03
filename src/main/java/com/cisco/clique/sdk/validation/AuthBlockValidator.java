@@ -2,8 +2,10 @@ package com.cisco.clique.sdk.validation;
 
 import com.cisco.clique.sdk.Transport;
 import com.cisco.clique.sdk.chains.AuthBlock;
+import sun.security.pkcs11.wrapper.CK_CREATEMUTEX;
 
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -51,8 +53,15 @@ public class AuthBlockValidator extends AbstractValidator<AuthBlock> {
         // validate that the issuer has authority to assert the grants contained within the block
         URI issuer = block.getIssuer();
         Map<String, AuthBlock.Grant.Type> creatorGrants = _currentGrants.get(issuer);
+        if (null == creatorGrants) {
+            throw new InvalidParameterException("block issuer has no privileges on this chain");
+        }
         for (AuthBlock.Grant grant : block.getGrants()) {
-            if (!creatorGrants.get(grant.getPrivilege()).equals(AuthBlock.Grant.Type.VIRAL_GRANT)) {
+            AuthBlock.Grant.Type grantType = creatorGrants.get(grant.getPrivilege());
+            if (null == grantType) {
+                throw new InvalidParameterException("block issuer has no grant for the privilege it is granting");
+            }
+            if (!grantType.equals(AuthBlock.Grant.Type.VIRAL_GRANT)) {
                 throw new InvalidBlockException("block issuer has insufficient privileges to assert contained grants");
             }
         }
