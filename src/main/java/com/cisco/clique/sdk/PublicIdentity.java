@@ -30,6 +30,10 @@ public class PublicIdentity {
         return _idChain.getSubject();
     }
 
+    public String getHash() throws Exception {
+        return _idChain.getHash();
+    }
+
     public ECKey getPublicKey(String pkt) throws Exception {
         ECKey retval = null;
         if (_idChain.containsPkt(pkt)) {
