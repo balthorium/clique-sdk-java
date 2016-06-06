@@ -84,7 +84,7 @@ public abstract class AbstractBlock {
     public String getHash() throws Exception {
         byte[] bytes = serialize().getBytes(StandardCharsets.UTF_8);
         return new String(
-            Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(bytes)));
+                Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(bytes)));
     }
 
     public String serialize() throws Exception {

@@ -1,7 +1,5 @@
 package com.cisco.clique.sdk.chains;
 
-import com.cisco.clique.sdk.Clique;
-import com.cisco.clique.sdk.validation.IdBlockValidator;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -61,7 +59,6 @@ public class IdBlock extends AbstractBlock {
             AbstractBlock lastBlock = _chain.lastBlock();
             String ant = (null != lastBlock) ? lastBlock.getHash() : null;
             IdBlock block = new IdBlock(_issuer, _issuerKey, _subject, _subjectPubKey, ant);
-            block.serialize();
 
             // automatically add locally created self-issued blocks to the local trust roots
             if (_issuer.equals(_subject)) {
@@ -69,7 +66,6 @@ public class IdBlock extends AbstractBlock {
             }
 
             _chain.addBlock(block);
-            _chain.validate();
             return block;
         }
     }

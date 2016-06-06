@@ -80,8 +80,8 @@ public class Identity extends PublicIdentity {
     }
 
     @Override
-    protected ObjectNode serializeAsJson() throws Exception {
-        ObjectNode json = super.serializeAsJson();
+    protected ObjectNode serializeToJson() throws Exception {
+        ObjectNode json = super.serializeToJson();
         ArrayNode keys = json.putArray("keys");
         for (ECKey key : _keyPairs.values()) {
             ObjectNode keyNode = (ObjectNode) _mapper.readTree(key.toJSONString());

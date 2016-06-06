@@ -74,14 +74,12 @@ public class AuthBlock extends AbstractBlock {
 
             JSONArray grantArray = new JSONArray();
             for (AuthBlock.Grant grant : _grants) {
-                grantArray.add(JSONObjectUtils.parseJSONObject(grant.toString()));
+                grantArray.add(JSONObjectUtils.parse(grant.toString()));
             }
 
             AuthBlock block = new AuthBlock(_issuer, _issuerKey, _subject, grantArray, ant);
-            block.serialize();
 
             _chain.addBlock(block);
-            _chain.validate();
             return block;
         }
     }
@@ -102,9 +100,7 @@ public class AuthBlock extends AbstractBlock {
         }
 
         public Grant(JsonNode node) {
-            _type = Type.valueOf(node.findPath("type").asText());
-            _privilege = node.findPath("privilege").asText();
-            _grantee = URI.create(node.findPath("grantee").asText());
+            deserializeFromJson(node);
         }
 
         public Type getType() {
@@ -119,17 +115,26 @@ public class AuthBlock extends AbstractBlock {
             return _grantee;
         }
 
+        private ObjectNode serializeToJson() {
+            ObjectNode node = _mapper.createObjectNode();
+            node.put("type", _type.toString());
+            node.put("privilege", _privilege);
+            node.put("grantee", _grantee.toString());
+            return node;
+        }
+
+        private void deserializeFromJson(JsonNode node) {
+            _type = Type.valueOf(node.findPath("type").asText());
+            _privilege = node.findPath("privilege").asText();
+            _grantee = URI.create(node.findPath("grantee").asText());
+        }
+
         @Override
         public String toString() {
             try {
-                ObjectNode grant = _mapper.createObjectNode();
-                grant.put("type", _type.toString());
-                grant.put("privilege", _privilege);
-                grant.put("grantee", _grantee.toString());
-
                 return _mapper
                         .writerWithDefaultPrettyPrinter()
-                        .writeValueAsString(grant);
+                        .writeValueAsString(serializeToJson());
             } catch (IOException e) {
                 e.printStackTrace();
             }

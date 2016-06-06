@@ -2,7 +2,6 @@ package com.cisco.clique.sdk.validation;
 
 import com.cisco.clique.sdk.Transport;
 import com.cisco.clique.sdk.chains.AuthBlock;
-import sun.security.pkcs11.wrapper.CK_CREATEMUTEX;
 
 import java.net.URI;
 import java.security.InvalidParameterException;

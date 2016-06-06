@@ -1,6 +1,5 @@
 package com.cisco.clique.sdk;
 
-import com.cisco.clique.sdk.chains.AbstractBlock;
 import com.cisco.clique.sdk.chains.AbstractChain;
 import com.cisco.clique.sdk.chains.AuthBlock;
 import com.cisco.clique.sdk.chains.IdBlock;

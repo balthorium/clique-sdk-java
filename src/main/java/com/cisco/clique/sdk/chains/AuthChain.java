@@ -1,7 +1,6 @@
 package com.cisco.clique.sdk.chains;
 
 import com.cisco.clique.sdk.validation.AbstractValidator;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import java.net.URI;

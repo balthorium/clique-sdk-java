@@ -3,7 +3,6 @@ package com.cisco.clique.sdk;
 import com.cisco.clique.sdk.chains.IdBlock;
 import com.cisco.clique.sdk.chains.IdChain;
 import com.cisco.clique.sdk.validation.AbstractValidator;
-import com.cisco.clique.sdk.validation.IdBlockValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.ECKey;
@@ -51,10 +50,10 @@ public class PublicIdentity {
     }
 
     public String serialize() throws Exception {
-        return _mapper.writeValueAsString(serializeAsJson());
+        return _mapper.writeValueAsString(serializeToJson());
     }
 
-    protected ObjectNode serializeAsJson() throws Exception {
+    protected ObjectNode serializeToJson() throws Exception {
         ObjectNode json = _mapper.createObjectNode();
         json.put("acct", _idChain.getSubject().toString());
         return json;
